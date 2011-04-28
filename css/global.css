@@ -1,0 +1,24 @@
+table#deploylist{ width: 100%; }
+table#deploylist thead{
+    font-weight:bold;
+    color:#555;
+}
+
+/*widths of table columns*/
+table#deploylist td.repname{  width: 10%; }
+table#deploylist td.branch{  width: 10%; }
+table#deploylist td.last_commit_msg{  width: 50%; }
+table#deploylist td.number_of_commits{  width: 10%; }
+table#deploylist td.created{  width: 10%; }
+
+/* show errors */
+table#deploylist .error {cursor: pointer;}
+table#deploylist tr.details{ display:none; }
+table#deploylist tr.details:nth-child(odd) {background: #eee}
+
+/* success/error color grading*/
+tr.error{background-color: #E3170D;color:white}
+tr.error td{border:1px solid #630A06}
+tr.success{background-color: #458B00;color:white}
+tr.success td{border:1px solid #2C5800}
+tr.error td, tr.success td{ padding: 5px; }
