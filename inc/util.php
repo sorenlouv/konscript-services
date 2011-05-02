@@ -59,7 +59,7 @@ function get_latest_prod_version($dir){
     rsort($versions, SORT_NUMERIC);  
     
     //return the newest folder. If none exist return false   
-    return count($versions) == 0 ? false : $versions[0];
+    return count($versions) == 0 ? 1 : $versions[0];
 }
 
 //get a list of folders in a specific path

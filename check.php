@@ -16,7 +16,7 @@ if(!isset($_GET["projectName"]) || empty($_GET["projectName"]) || !is_dir("/srv/
     //check GitHub repository    
     $check->checkGithub();
         
-    $branch_folders = array($check->getPathToBranchFolder("prod"), $check->getPathToBranchFolder("dev"));   
+    $branch_folders = array("prod", "dev");       
     foreach($branch_folders as $branch_folder){
         //check folders
         $check->checkFolderMustExist($branch_folder);    

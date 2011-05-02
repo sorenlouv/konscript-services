@@ -90,18 +90,20 @@ class check {
      
     //check if git has been initialized 
     function checkGitInit($branch_folder){
-        $status = Git::git_callback('status', $this->getPathToBranchFolder($branch_folder));
-        $msg = array("success"=>"Git is initialized", "error"=>"Initialize Git in ".$this->getPathToBranchFolder($branch_folder));
+        $path = $this->getPathToBranchFolder($branch_folder);
+        $status = Git::git_callback('status', $path);
+        $msg = array("success"=>"Git is initialized in $path", "error"=>"Initialize Git in ".$this->getPathToBranchFolder($branch_folder));
         $this->addCheck($status, $msg);                  
     }
     
     //check if remote 'konscript' has been added            
     function checkGitRemote($branch_folder){                                  
-        $status = Git::git_callback('remote -v | grep "'.$this->getPathToGitRemote().'"', $this->getPathToBranchFolder($branch_folder));
+        $path = $this->getPathToBranchFolder($branch_folder);
+        $status = Git::git_callback('remote -v | grep "'.$this->getPathToGitRemote().'"', $path);
         $msg = array(
-            "success"=>"Remote 'konscript' was found", 
-            "error"=>"Remote 'konscript' missing in: ".$this->getPathToBranchFolder($branch_folder), 
-            "tip"=> 'cd '.$this->getPathToBranchFolder($branch_folder).' && git remote add konscript git://github.com/konscript/'.$this->projectName.'.git'
+            "success"=>"Remote 'konscript' was found in $", 
+            "error"=>"Remote 'konscript' missing in: ".$path, 
+            "tip"=> 'cd '.$path.' && git remote add konscript git://github.com/konscript/'.$this->projectName.'.git'
         );
         $this->addCheck($status, $msg); 
     }                 
@@ -122,7 +124,7 @@ class check {
     //check the directory has the sufficient permissions    
     function checkFolderWritable($folder){        
         $status = is_writable($folder) ? 0 : 1;        
-        $msg = array("success"=>"Folder is writable", "error"=>"Folder not writable: ".$folder, "tip"=> " Change permission for the folder and contents recursively:<br> chmod 770 ".$folder." -R");
+        $msg = array("success"=>"Folder is writable in $folder", "error"=>"Folder not writable: ".$folder, "tip"=> " Change permission for the folder and contents recursively:<br> chmod 770 ".$folder." -R");
         $this->addCheck($status, $msg);    
         //Write access needed for: %s");
     }    
@@ -133,10 +135,10 @@ class check {
         $this->addCheck($status, $msg);    
     }
     
-    function checkFolderMustExist($branch){
-        $path = $this->getPathToBranchFolder($branch);
+    function checkFolderMustExist($branch_folder){
+        $path = $this->getPathToBranchFolder($branch_folder);
         $status = is_dir($path) ? 0 : 1;
-        $msg = array("success"=>"Folder is created", "error"=>"Folder does not exist: ".$path, "tip"=>"Create directory: <br>mkdir ".$path);
+        $msg = array("success"=>"Folder is created in $path", "error"=>"Folder does not exist: ".$path, "tip"=>"Create directory: <br>mkdir ".$path);
         $this->addCheck($status, $msg);            
     }        
     
