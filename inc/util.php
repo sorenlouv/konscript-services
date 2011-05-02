@@ -64,17 +64,16 @@ function get_latest_prod_version($dir){
 
 //get a list of folders in a specific path
 function get_list_of_folders($dir){
-    $dh = opendir($dir);    
+    
     $folders = array();    
     if (is_dir($dir)) {
-        if ($dh) {
+            $dh = opendir($dir);
             while (($file = readdir($dh)) !== false) {
                 if(is_dir($dir . $file) == true && $file!=".." && $file!="."){
                     $folders[] = $file;  
                 }              
             }
             closedir($dh);
-        }
     }         
     return $folders;
 }
