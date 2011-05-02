@@ -101,7 +101,7 @@ class check {
         $path = $this->getPathToBranchFolder($branch_folder);
         $status = Git::git_callback('remote -v | grep "'.$this->getPathToGitRemote().'"', $path);
         $msg = array(
-            "success"=>"Remote 'konscript' was found in $", 
+            "success"=>"Remote 'konscript' was found in $path", 
             "error"=>"Remote 'konscript' missing in: ".$path, 
             "tip"=> 'cd '.$path.' && git remote add konscript git://github.com/konscript/'.$this->projectName.'.git'
         );
@@ -159,7 +159,7 @@ class check {
                 $msg["error"] = "The virtual host file is misconfigured:<br> ".nl2br($content);
             }
         }else{
-            $msg["error"] = "No virtual host file was found";
+            $msg["error"] = "No virtual host file was found or misconfigured";
         }            
         $msg["tip"] = "Create virtual host file: /etc/apache2/sites-available/".$this->projectName." and add the following content (modifications might be necessary): <br> " . $this->getVirtualHostTemplate() ."<br> 
         Remember to enable the new virtual host: <br> sudo a2ensite " . $this->projectName;
