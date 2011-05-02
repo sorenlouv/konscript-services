@@ -28,7 +28,9 @@
             mkdir($full_path_to_prod, 02770);
             mkdir($full_path_to_prod."/1", 02770); //first prod version is always empty!   
             $repo = Git::create($full_path_to_prod."/1");
-            $repo->run('remote add konscript git://github.com/konscript/'.$projectName.'.git');                             
+            $repo->run('remote add konscript git://github.com/konscript/'.$projectName.'.git');     
+            
+            header("Location: check.php?projectName=".$projectName);
             
         //on error
         }else{
