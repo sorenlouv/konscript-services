@@ -39,18 +39,32 @@ if(!isset($_GET["projectName"]) || empty($_GET["projectName"]) || !is_dir("/srv/
                 
     //Check virtual hosts    
     $check->checkVirtualHost();                      
+    
+include("inc/header.php")
 ?>
-
-<link href='css/global.css' type='text/css' rel='stylesheet'>
 <table>
     <?php 
-    foreach($check->getChecks() as $check): 
-    $class = $check["status"] == true ? "success" : "error";
+    $tips = array();
+    foreach($check->getChecks() as $id=>$check): 
+    $class = $check["status"] == true ? "success" : "error";    
+    
+    //add tips to array
+    if(!empty($check["tip"])){
+        $tips[$id] = $check["tip"];
+    }    
     ?>
 
-    <tr class="<?php echo $class ?>"><td><?php echo $check[$class]; ?></td></tr>
+    <tr class="<?php echo $class ?>" rel="<?php echo $id; ?>"><td><?php echo $check[$class]; ?></td></tr>
     <?php endforeach; ?>
 </table>
+
+<div id="showTip">
+<h2>Tips</h2>
+<?php foreach($tips as $id=>$tip):
+    echo '<div id="tip_'.$id.'">'.$tip.'</div>';
+endforeach; ?>
+</div>
+
 <?php
 } 
 ?>

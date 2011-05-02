@@ -22,3 +22,10 @@ tr.error td{border:1px solid #630A06}
 tr.success{background-color: #458B00;color:white}
 tr.success td{border:1px solid #2C5800}
 tr.error td, tr.success td{ padding: 5px; }
+
+/* check page */
+tr.error {cursor: pointer;}
+#showTip {border: 1px solid #888; width: 70%;}
+#showTip div{
+    display:none;
+}

@@ -6,7 +6,7 @@ $connection->connect();
 
 //prepare statement
 $query = "SELECT * FROM deployments 
-INNER JOIN deployment_errors on deployments.id=deployment_errors.deployment_id ORDER BY deployments.id DESC";
+LEFT JOIN deployment_errors on deployments.id=deployment_errors.deployment_id ORDER BY deployments.id DESC";
 $result = $connection->query($query);
 
 while ($deployment = $result->fetch_object()) {    
@@ -44,15 +44,9 @@ foreach($rows as $commit){
     }    
 }
 
+include("inc/header.php")
 ?>
-<html>
-<head>
-<script type="text/javascript" src="js/jquery-1.5.2.min.js"></script>
-<script type="text/javascript" src="js/global.js"></script>
-<link href='css/global.css' type='text/css' rel='stylesheet'>
-<title>Interface</title>
-</head>
-<body>
+
     <a href="create.php">Create new Project</a> | <a href="check.php">Check projects</a>
     <table id='deploylist'>
     <thead>

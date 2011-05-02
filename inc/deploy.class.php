@@ -84,7 +84,7 @@ class deploy extends check{
         $this->checkRepName($this->payload);
         $this->checkGithubAccount($this->payload);
         $this->checkPayloadHost();
-        $this->checkPathRegex($this->branch_folder); 
+        //$this->checkPathRegex($this->branch_folder); 
         $this->checkFolderMustExist($this->branch_folder); //check folder exist. eg. uru/dev              
     }
     

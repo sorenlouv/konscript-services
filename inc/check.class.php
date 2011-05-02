@@ -21,13 +21,17 @@ class check {
        
     function getPathToGitRemote(){            
         return "git://github.com/konscript/".$this->projectName.'.git';  
-    }
+    }        
     
     function getPathToBranchFolder($branch_folder){
         if($branch_folder=="dev"){
             return $this->root.$this->projectName."/dev";
         }else{
-            return $this->root.$this->projectName."/prod/1";                
+              $prod_folder = $this->root.$this->projectName."/prod/";
+              if(!isset($this->latestProdVersion)){
+                  $this->latest_prod_version = get_latest_prod_version($prod_folder);                
+              }
+              return $prod_folder.$this->latest_prod_version;
         }
     }    
                             
@@ -94,7 +98,11 @@ class check {
     //check if remote 'konscript' has been added            
     function checkGitRemote($branch_folder){                                  
         $status = Git::git_callback('remote -v | grep "'.$this->getPathToGitRemote().'"', $this->getPathToBranchFolder($branch_folder));
-        $msg = array("success"=>"Remote 'konscript' was found", "error"=>"Add remote 'konscript' to ".$this->getPathToBranchFolder($branch_folder));
+        $msg = array(
+            "success"=>"Remote 'konscript' was found", 
+            "error"=>"Remote 'konscript' missing in: ".$this->getPathToBranchFolder($branch_folder), 
+            "tip"=> 'cd '.$this->getPathToBranchFolder($branch_folder).' && git remote add konscript git://github.com/konscript/'.$this->projectName.'.git'
+        );
         $this->addCheck($status, $msg); 
     }                 
     
@@ -114,7 +122,7 @@ class check {
     //check the directory has the sufficient permissions    
     function checkFolderWritable($folder){        
         $status = is_writable($folder) ? 0 : 1;        
-        $msg = array("success"=>"Folder is writable", "error"=>"Folder is not writable. Try: chmod 770 ".$folder." -R");
+        $msg = array("success"=>"Folder is writable", "error"=>"Folder not writable: ".$folder, "tip"=> " Change permission for the folder and contents recursively:<br> chmod 770 ".$folder." -R");
         $this->addCheck($status, $msg);    
         //Write access needed for: %s");
     }    
@@ -128,7 +136,7 @@ class check {
     function checkFolderMustExist($branch){
         $path = $this->getPathToBranchFolder($branch);
         $status = is_dir($path) ? 0 : 1;
-        $msg = array("success"=>"Folder is created", "error"=>"The folder $path, does not exist");
+        $msg = array("success"=>"Folder is created", "error"=>"Folder does not exist: ".$path, "tip"=>"Create directory: <br>mkdir ".$path);
         $this->addCheck($status, $msg);            
     }        
     
@@ -150,7 +158,10 @@ class check {
             }
         }else{
             $msg["error"] = "No virtual host file was found";
-        }                    
+        }            
+        $msg["tip"] = "Create virtual host file: /etc/apache2/sites-available/".$this->projectName." and add the following content (modifications might be necessary): <br> " . $this->getVirtualHostTemplate() ."<br> 
+        Remember to enable the new virtual host: <br> sudo a2ensite " . $this->projectName;
+        
         $this->addCheck($status, $msg);
     }    
         
@@ -175,9 +186,40 @@ class check {
         $status = $number_of_deploys>0 ? 0 : 1;                
         $msg = array(
             "success"=>"Found payload from Github hook", 
-            "error"=>"No payload has been received during the last hour. Try pushing to remote Konscript again"
+            "error"=>"No payload has been received during the last hour.",
+            "tip" => "Push to development repository from you local machine:<br> git push konscript master"
         );
         $this->addCheck($status, $msg);
-    }            
+    }      
+    
+    function getVirtualHostTemplate(){
+        $tmp = '
+        <VirtualHost 178.79.137.106:80>
+             ServerAdmin la@konscript.com
+             ServerName '.$this->projectName.'.com
+             DocumentRoot '.$this->getPathToBranchFolder("prod").'
+        </VirtualHost>
+                
+        <VirtualHost 178.79.137.106:80>
+             ServerAdmin la@konscript.com
+             ServerName www.' . $this->projectName . '.com
+             DocumentRoot '.$this->getPathToBranchFolder("prod").'
+        </VirtualHost>
+
+        <VirtualHost 178.79.137.106:80>
+             ServerAdmin la@konscript.com
+             ServerName dev.'.$this->projectName.'.com
+             DocumentRoot '.$this->getPathToBranchFolder("dev").'
+
+          <Directory '.$this->getPathToBranchFolder("dev").'>
+              <IfModule mod_php5.c>
+                 php_value error_reporting 214748364
+                 php_flag display_errors 1
+              </IfModule>
+          </Directory>
+
+        </VirtualHost>';      
+        return nl2br(htmlspecialchars($tmp));
+    }
 }       
 ?>

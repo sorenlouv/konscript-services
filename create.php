@@ -20,7 +20,6 @@
             //dev
             $full_path_to_dev = "/srv/www/".$projectName."/dev";
             mkdir($full_path_to_dev, 02770);
-            file_put_contents($full_path_to_dev."/.htaccess", "php_value error_reporting 8191\n php_flag display_errors On");
             $repo = Git::create($full_path_to_dev); //git init
             $repo->run('remote add konscript git://github.com/konscript/'.$projectName.'.git'); //git remote add; using read-only path!
 
