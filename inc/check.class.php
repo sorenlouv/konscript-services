@@ -11,6 +11,10 @@ class check {
         $this->setProjectName($projectName);
     }    
     
+    function getFullBranch(){
+        return $this->payload->ref;
+    }    
+    
     function getChecks(){
         return $this->checks;
     }
@@ -35,12 +39,13 @@ class check {
         }
     }    
                             
-   function addCheck($status, $msg){        
+   function addCheck($status, $msg, $calling_function){        
+        $msg["name"] = $calling_function;
         if($status>0){
             $this->number_of_errors++;
-            $msg["status"] = false;
+            $msg["status"] = 0;
         }else{
-            $msg["status"] = true;
+            $msg["status"] = 1;
         }
         $this->checks[] = $msg;  
    }             
@@ -53,21 +58,21 @@ class check {
         $valid_branches = array('refs/heads/master', 'refs/heads/prod');
         $status = in_array($payload->ref, $valid_branches) ? 0 : 1;
         $msg = array("error"=>"Branch is not valid! ".$this->payload->ref);
-        $this->addCheck($status, $msg);
+        $this->addCheck($status, $msg, __function__);
     }
 
     //a repository name must be given
     function checkRepName($payload){
         $status = isset($payload->repository->name) ? 0 : 1;
         $msg = array("error"=>"The repository name was not set");
-        $this->addCheck($status, $msg);
+        $this->addCheck($status, $msg, __function__);
     }
 
     //the payload must have been pushed from Konscript's account
     function checkGithubAccount($payload){
         $status = strpos($payload->repository->url, "github.com/konscript") ? 0 : 1;
         $msg = array("error"=>"The deployment was not made from Konscript's account");
-        $this->addCheck($status, $msg);
+        $this->addCheck($status, $msg, __function__);
     }
  
     //Convert IP address of client to a hostname. This must always be github.com
@@ -79,14 +84,14 @@ class check {
         	        	
         $status = (substr(gethostbyaddr($ip), -10) == "github.com") ? 0 : 1;
         $msg = array("error"=>"Illegal host: ".gethostbyaddr($ip));
-        $this->addCheck($status, $msg);                  
+        $this->addCheck($status, $msg, __function__);                  
     }
         
     //The directory must be located somewhere below /srv/www and have a prod or dev folder
     function checkPathRegex($branch_folder){
         $status = preg_match("'^/srv/www/[a-z-]+/(dev|prod)+/\d*$'", $this->getPathToBranchFolder($branch_folder)) ? 0 : 1;    
         $msg = array("error"=>"The path doesn't match the regex: ".$this->getPathToBranchFolder($branch_folder));
-        $this->addCheck($status, $msg);
+        $this->addCheck($status, $msg, __function__);
     }
         
     /*** general checks ***/          
@@ -96,7 +101,7 @@ class check {
         $path = $this->getPathToBranchFolder($branch_folder);
         $status = Git::git_callback('branch', $path);
         $msg = array("success"=>"Git is initialized in $path", "error"=>"Initialize Git in ".$path);
-        $this->addCheck($status, $msg);                  
+        $this->addCheck($status, $msg, __function__);                  
     }
     
     //check if remote 'konscript' has been added            
@@ -108,19 +113,19 @@ class check {
             "error"=>"Remote 'konscript' missing in: ".$path, 
             "tip"=> 'cd '.$path.' && git remote add konscript git://github.com/konscript/'.$this->projectName.'.git'
         );
-        $this->addCheck($status, $msg); 
+        $this->addCheck($status, $msg, __function__); 
     }                 
     
     function checkGitPull($git_response, $path){
         $status = $git_response[0];
         $msg = array("error"=>$git_response[1]);
-        
-        //roll back - delete cloned folder 
-        if($status>0 && $deploy->getFullBranch() == 'refs/heads/prod'){
+                
+        //roll back - delete cloned folder                 
+        if($status>0 && $this->getFullBranch() == 'refs/heads/prod'){
             //rrmdir($path);
-            $msg["error"] = "(Disabled) Removed the folder: ".$path;
+            $msg["error"] = "[Disabled!] Removed the folder: ".$path;
         }        
-        $this->addCheck($status, $msg); 
+        $this->addCheck($status, $msg, __function__); 
     
     }
 
@@ -128,21 +133,21 @@ class check {
     function checkFolderWritable($folder){        
         $status = is_writable($folder) ? 0 : 1;        
         $msg = array("success"=>"Folder is writable in $folder", "error"=>"Folder not writable: ".$folder, "tip"=> " Change permission for the folder and contents recursively:<br> chmod 770 ".$folder." -R");
-        $this->addCheck($status, $msg);    
+        $this->addCheck($status, $msg, __function__);    
         //Write access needed for: %s");
     }    
         
     function checkFolderCannotExist($path){
         $status = !file_exists($path) ? 0 : 1;
         $msg = array("error"=>"The folder %s already exists");
-        $this->addCheck($status, $msg);    
+        $this->addCheck($status, $msg, __function__);    
     }
     
     function checkFolderMustExist($branch_folder){
         $path = $this->getPathToBranchFolder($branch_folder);
         $status = is_dir($path) ? 0 : 1;
         $msg = array("success"=>"Folder is created in $path", "error"=>"Folder does not exist: ".$path, "tip"=>"Create directory: <br>mkdir ".$path);
-        $this->addCheck($status, $msg);            
+        $this->addCheck($status, $msg, __function__);            
     }        
     
     /***** specific: check.php (check list) ******/
@@ -167,14 +172,14 @@ class check {
         $msg["tip"] = "Create virtual host file: /etc/apache2/sites-available/".$this->projectName." and add the following content (modifications might be necessary): <br> " . $this->getVirtualHostTemplate() ."<br> 
         Remember to enable the new virtual host: <br> sudo a2ensite " . $this->projectName;
         
-        $this->addCheck($status, $msg);
+        $this->addCheck($status, $msg, __function__);
     }    
         
    //check if a Github account has been created
    function checkGithub(){
         $status = Git::git_callback('ls-remote '. $this->getPathToGitRemote());
         $msg = array("success"=>"Project was found on GitHub", "error"=>"Create project on GitHub");
-        $this->addCheck($status, $msg);           
+        $this->addCheck($status, $msg, __function__);           
    }
        
     //Check Post hook - check if we have receive any payload from GitHub on the current project            
@@ -194,7 +199,7 @@ class check {
             "error"=>"No payload has been received during the last hour.",
             "tip" => "Push to development repository from you local machine:<br> git push konscript master"
         );
-        $this->addCheck($status, $msg);
+        $this->addCheck($status, $msg, __function__);
     }      
     
     function getVirtualHostTemplate(){

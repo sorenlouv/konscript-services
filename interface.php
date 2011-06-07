@@ -17,7 +17,7 @@ while ($deployment = $result->fetch_object()) {
     $rows[$created]["last_commit_msg"] = $deployment->last_commit_msg;
     $rows[$created]["number_of_commits"] = $deployment->number_of_commits;
     $rows[$created]["created"] = $created;
-    $rows[$created]["errors"][] = $deployment->msg;    
+    $rows[$created]["errors"][] = array($deployment->function_name, $deployment->error_msg);    
 }
 
 $html = "";
@@ -31,13 +31,12 @@ foreach($rows as $commit){
         <td>".date("d/m Y", $commit["created"])."</td></tr>";
     
     if($commit["number_of_errors"]>0){
-        foreach($commit["errors"] as $error){
+        foreach($commit["errors"] as $array){
             $html .= "
             <tr class='details i_".$commit["created"]."'>
                 <td>&nbsp;</td>
                 <td><a href='check.php?projectName=".$commit["name"]."'>(check)</a></td>
-                <td>".$error."</td>
-                <td>&nbsp;</td>
+                <td><b>".$array[0]."</b><br>".$array[1]."</td>
                 <td>&nbsp;</td>
             </tr>";
         }

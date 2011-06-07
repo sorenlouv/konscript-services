@@ -19,11 +19,9 @@ class deploy extends check{
         }       
         
         $this->validation();
-    }   
-       
-    function getFullBranch(){
-        return $this->payload->ref;
-    }   
+    }            
+    
+    
     
     function getNumberOfErrors(){        
         return $this->number_of_errors;
@@ -88,7 +86,6 @@ class deploy extends check{
         $this->checkFolderMustExist($this->branch_folder); //check folder exist. eg. uru/dev              
     }
     
-
     function gitPull(){                
         $git_response = Git::git_callback('pull konscript '.$this->branch_short, $this->pathToNextVersion, true);               
         $this->checkGitPull($git_response, $this->pathToNextVersion);                        
@@ -130,20 +127,21 @@ class deploy extends check{
 
         
         //make query
-        $query = "INSERT INTO deployment_errors (deployment_id, msg) VALUES (?, ?)";
+        $query = "INSERT INTO deployment_errors (deployment_id, function_name, error_msg) VALUES (?, ?, ?)";
 
         //prepare query statement
         $addErrors = $connection->prep_stmt($query);  
             
         //bind parameters
-        $addErrors->bind_param("is", $deployment_id, $msg);                
+        $addErrors->bind_param("iss", $deployment_id, $name, $error);                
         
         //set variables
         $deployment_id = $deployment->insert_id;        
                                 
         foreach($this->getChecks() as $check){
-            if($check["status"] == false){        
-                $msg = $check["error"];
+            if($check["status"] == 0){        
+	            $name = $check["name"];
+                $error = $check["error"];
                 
                 //Executing the statement
                 $addErrors->execute() or die("Error: ".$addErrors->error);                        
