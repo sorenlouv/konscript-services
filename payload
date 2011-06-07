@@ -1,40 +1,93 @@
 {
-  "before": "5aef35982fb2d34e9d9d4502f6ede1072793222d",
-  "repository": {
-    "url": "http://github.com/konscript/github",
-    "name": "roskilde-el",
-    "description": "You're lookin' at it.",
-    "watchers": 5,
-    "forks": 2,
-    "private": 1,
-    "owner": {
-      "email": "chris@ozmm.org",
-      "name": "defunkt"
-    }
-  },
+  "after": "d2708f4fe4aa4c32ed82a1596623ee4a701a813c", 
+  "base_ref": null, 
+  "before": "1ea6922e80a29f0d5785bf43ce24a5c0787bc8b8", 
   "commits": [
     {
-      "id": "41a212ee83ca127e3c8cf465891ab7216a705f59",
-      "url": "http://github.com/defunkt/github/commit/41a212ee83ca127e3c8cf465891ab7216a705f59",
+      "added": [], 
       "author": {
-        "email": "chris@ozmm.org",
-        "name": "Chris Wanstrath"
-      },
-      "message": "okay i give in",
-      "timestamp": "2008-02-15T14:57:17-08:00",
-      "added": ["filepath.rb"]
-    },
+        "email": "ksm.andersen@gmail.com", 
+        "name": "Kristian Andersen", 
+        "username": "ksmandersen"
+      }, 
+      "distinct": true, 
+      "id": "5b5330305a2de82dc582e20621058a49aa4bede7", 
+      "message": "Design structure. Re-commit", 
+      "modified": [
+        "wp-content\/themes\/taniaellis\/footer.php", 
+        "wp-content\/themes\/taniaellis\/functions.php", 
+        "wp-content\/themes\/taniaellis\/header.php", 
+        "wp-content\/themes\/taniaellis\/style.css", 
+        "wp-content\/themes\/taniaellis\/style\/text-styles.css"
+      ], 
+      "removed": [], 
+      "timestamp": "2011-06-06T06:41:26-07:00", 
+      "url": "https:\/\/github.com\/konscript\/taniaellis\/commit\/5b5330305a2de82dc582e20621058a49aa4bede7"
+    }, 
     {
-      "id": "de8251ff97ee194a289832576287d6f8ad74e3d0",
-      "url": "http://github.com/defunkt/github/commit/de8251ff97ee194a289832576287d6f8ad74e3d0",
+      "added": [], 
       "author": {
-        "email": "chris@ozmm.org",
-        "name": "Chris Wanstrath"
-      },
-      "message": "update pricing a tad",
-      "timestamp": "2008-02-15T14:36:34-08:00"
+        "email": "ksm.andersen@gmail.com", 
+        "name": "Kristian Andersen", 
+        "username": "ksmandersen"
+      }, 
+      "distinct": true, 
+      "id": "d52001c6f9648a24ba4c2f0e563e42255f685ed4", 
+      "message": "Corrected syntax. Added page menu.", 
+      "modified": [
+        "wp-content\/themes\/taniaellis\/functions.php"
+      ], 
+      "removed": [], 
+      "timestamp": "2011-06-06T06:49:59-07:00", 
+      "url": "https:\/\/github.com\/konscript\/taniaellis\/commit\/d52001c6f9648a24ba4c2f0e563e42255f685ed4"
+    }, 
+    {
+      "added": [], 
+      "author": {
+        "email": "ksm.andersen@gmail.com", 
+        "name": "Kristian Andersen", 
+        "username": "ksmandersen"
+      }, 
+      "distinct": true, 
+      "id": "d2708f4fe4aa4c32ed82a1596623ee4a701a813c", 
+      "message": "Modified the gitignore", 
+      "modified": [
+        ".gitignore"
+      ], 
+      "removed": [], 
+      "timestamp": "2011-06-06T06:58:51-07:00", 
+      "url": "https:\/\/github.com\/konscript\/taniaellis\/commit\/d2708f4fe4aa4c32ed82a1596623ee4a701a813c"
     }
-  ],
-  "after": "de8251ff97ee194a289832576287d6f8ad74e3d0",
-  "ref": "refs/heads/prod"
+  ], 
+  "compare": "https:\/\/github.com\/konscript\/taniaellis\/compare\/1ea6922...d2708f4", 
+  "created": false, 
+  "deleted": false, 
+  "forced": false, 
+  "pusher": {
+    "name": "none"
+  }, 
+  "ref": "refs\/heads\/master", 
+  "repository": {
+    "created_at": "2011\/05\/30 05:02:51 -0700", 
+    "description": "", 
+    "fork": false, 
+    "forks": 3, 
+    "has_downloads": true, 
+    "has_issues": true, 
+    "has_wiki": true, 
+    "homepage": "", 
+    "language": "PHP", 
+    "name": "taniaellis", 
+    "open_issues": 0, 
+    "organization": "konscript", 
+    "owner": {
+      "email": "hello@konscript.com", 
+      "name": "konscript"
+    }, 
+    "private": false, 
+    "pushed_at": "2011\/06\/06 06:59:24 -0700", 
+    "size": 100, 
+    "url": "https:\/\/github.com\/konscript\/taniaellis", 
+    "watchers": 3
+  }
 }

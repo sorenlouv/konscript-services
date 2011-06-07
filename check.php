@@ -22,7 +22,7 @@ if(!isset($_GET["projectName"]) || empty($_GET["projectName"]) || !is_dir("/srv/
         $check->checkFolderMustExist($branch_folder);    
             
         //check git init            
-        $check->checkGitInit($branch_folder);                
+        //$check->checkGitInit($branch_folder);                
             
         //check git remote
         $check->checkGitRemote($branch_folder);        

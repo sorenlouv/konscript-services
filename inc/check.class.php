@@ -71,12 +71,15 @@ class check {
     }
  
     //Convert IP address of client to a hostname. This must always be github.com
-    function checkPayloadHost(){        
-        if($_SERVER["REMOTE_ADDR"] != "127.0.0.1"){
-            $status = (substr(gethostbyaddr($_SERVER["REMOTE_ADDR"]), -10) == "github.com") ? 0 : 1;
-            $msg = array("error"=>"Illegal host: ".gethostbyaddr($_SERVER["REMOTE_ADDR"]));
-            $this->addCheck($status, $msg);        
-        }  
+    function checkPayloadHost(){
+    	$ip = $_SERVER["REMOTE_ADDR"];
+        if($ip == "127.0.0.1"){
+        	return true;
+        }
+        	        	
+        $status = (substr(gethostbyaddr($ip), -10) == "github.com") ? 0 : 1;
+        $msg = array("error"=>"Illegal host: ".gethostbyaddr($ip));
+        $this->addCheck($status, $msg);                  
     }
         
     //The directory must be located somewhere below /srv/www and have a prod or dev folder
@@ -91,8 +94,8 @@ class check {
     //check if git has been initialized 
     function checkGitInit($branch_folder){
         $path = $this->getPathToBranchFolder($branch_folder);
-        $status = Git::git_callback('status', $path);
-        $msg = array("success"=>"Git is initialized in $path", "error"=>"Initialize Git in ".$this->getPathToBranchFolder($branch_folder));
+        $status = Git::git_callback('branch', $path);
+        $msg = array("success"=>"Git is initialized in $path", "error"=>"Initialize Git in ".$path);
         $this->addCheck($status, $msg);                  
     }
     
@@ -199,15 +202,10 @@ class check {
         <VirtualHost 178.79.137.106:80>
              ServerAdmin la@konscript.com
              ServerName '.$this->projectName.'.com
+             ServerAlias www.' . $this->projectName . '.com
              DocumentRoot '.$this->getPathToBranchFolder("prod").'
         </VirtualHost>
                 
-        <VirtualHost 178.79.137.106:80>
-             ServerAdmin la@konscript.com
-             ServerName www.' . $this->projectName . '.com
-             DocumentRoot '.$this->getPathToBranchFolder("prod").'
-        </VirtualHost>
-
         <VirtualHost 178.79.137.106:80>
              ServerAdmin la@konscript.com
              ServerName dev.'.$this->projectName.'.com

@@ -6,7 +6,7 @@ include("inc/deploy.class.php");
 
 //Receive and decode the json payload string
 //$payload = $_REQUEST['payload'];
-$payload = file_get_contents("./payload");    
+$payload = file_get_contents("./payload"); 
 
 if(!isset($payload)){
     echo "No payload was received!";

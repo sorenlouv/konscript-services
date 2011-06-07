@@ -76,6 +76,7 @@ class Git {
 		$pipes = array();
 		$resource = proc_open('git '.$command, $descriptorspec, $pipes, $path);
 
+
 		$stdout = stream_get_contents($pipes[1]);
 		$stderr = stream_get_contents($pipes[2]);
 		foreach ($pipes as $pipe) {
@@ -85,9 +86,9 @@ class Git {
 		$status = trim(proc_close($resource));
 		
 		if($output_error == true){
-        	return array($status, $stderr);	    
+        		return array($status, $stderr);	    
 		}else{
-    		return $status;
+    			return $status;
 		}
 		
 		
