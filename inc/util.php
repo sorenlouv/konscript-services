@@ -70,6 +70,7 @@ function get_list_of_folders($dir){
             $dh = opendir($dir);
             while (($file = readdir($dh)) !== false) {
                 if(is_dir($dir . $file) == true && $file!=".." && $file!="."){
+
                     $folders[] = $file;  
                 }              
             }
@@ -80,5 +81,56 @@ function get_list_of_folders($dir){
 
 function getTempLink(){
     return 'The <a href="http://temp.konscript.dk">temporary link</a> currently points to:<br> '. readlink("/srv/www/temp/link1");
+}
+
+/**
+ * zip file/folder
+ * usage: Zip('/folder/to/compress/', './compressed.zip');
+ */
+function Zip($source, $destination)
+{
+    if (extension_loaded('zip') === true)
+    {
+        if (file_exists($source) === true)
+        {
+
+                $zip = new ZipArchive();
+
+                if ($zip->open($destination, ZIPARCHIVE::CREATE) === true)
+                {
+                        $source = realpath($source);
+
+                        if (is_dir($source) === true)
+                        {
+                                $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
+
+                                foreach ($files as $file)
+                                {
+                                        $file = realpath($file);
+
+                                        if (is_dir($file) === true)
+                                        {
+                                                $zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
+                                        }
+
+                                        else if (is_file($file) === true)
+                                        {
+                                                $zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
+                                        }
+                                }
+
+                        }
+
+                        else if (is_file($source) === true)
+                        {
+                                $zip->addFromString(basename($source), file_get_contents($source));
+                        }
+                }
+
+                return $zip->close();
+        }
+    }
+
+    return false;
 }
 ?>

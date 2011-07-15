@@ -1,8 +1,7 @@
 <?php
-
-require 'inc/conn.inc.php';
 include("inc/util.php");
-include("inc/deploy.class.php");
+include("inc/Check.class.php");
+include("inc/Deploy.class.php");
 
 //Receive and decode the json payload string
 if($_SERVER["REMOTE_ADDR"] == "127.0.0.1"){
@@ -16,18 +15,17 @@ if($_SERVER["REMOTE_ADDR"] == "127.0.0.1"){
     }
 }
 
-$deploy = new deploy($payload);
+$check = new Check();
+$deploy = new Deploy($payload, $check);
 
 //passed all preliminary validators
-if ($deploy->getNumberOfErrors() == 0){
-        //PROD ONLY: clone current version and create symlinks for temp.konscript.dk
-        $deploy->cloneProd();
-        $deploy->gitPull();                          
-                
+if ($check->getNumberOfErrors() == 0){
+	$git_response = Git::git_callback('pull konscript master', "/srv/www/".$deploy->payload->repository->name."/dev", true);
+	$deploy->checkGitPull($git_response);                                          
 }
 
 echo "Outputting checks: <br>";
-foreach($deploy->getChecks() as $check){
+foreach($check->getChecks() as $check){
     echo $check["name"]. " - ";
     if($check["status"] == 0){
         echo "Error: " . $check["error"];
