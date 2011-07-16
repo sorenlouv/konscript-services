@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.1.54, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: konteaser-prod
+-- Host: localhost    Database: konteaser-dev
 -- ------------------------------------------------------
 -- Server version	5.1.54-1ubuntu4
 

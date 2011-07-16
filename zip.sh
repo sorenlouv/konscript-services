@@ -13,6 +13,8 @@ pathWithoutLastFolder=${path%$lastFolder}
 #echo $lastFolder
 #echo  $pathWithoutLastFolder
 
+#sleep 10;
+
 rm ./temp/export.sql
 rm ./temp/folder.tar
 

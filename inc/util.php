@@ -23,6 +23,19 @@ function recursive_copy($src,$dst) {
     closedir($dir); 
 }     
 
+function downloadTar($path, $name){
+     // Set headers
+	header("Cache-Control: public");
+	header("Content-Description: File Transfer");
+	header('Content-Length: ' . filesize($path));     
+	header('Content-Disposition: attachment; filename=' . basename($path));
+	header("Content-Type: application/zip");
+	header("Content-Transfer-Encoding: binary");
+
+     // Read the file from disk
+     readfile($path);	
+}
+
 //recursive remove directory
 function rrmdir($dir) { 
 

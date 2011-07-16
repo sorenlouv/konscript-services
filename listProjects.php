@@ -1,5 +1,5 @@
 <?php
-include("inc/util.php");    
+include("inc/util.php"); 
 
 $projects = getProjects("/srv/www/");   
 echo '<table width="300px"><tr><td>Prod</td><td>Dev</td><td>Check for errors</td></tr>'; 
@@ -19,23 +19,29 @@ echo "</table>";
  */
 if(isset($_GET["projectToZip"]) && isset($_GET["branch"])){
 
+	// download production version
 	if($_GET["branch"]=="prod"){
 		$pathToProd = "/srv/www/".$_GET["projectToZip"]."/prod/";
 		$latest = get_latest_prod_version($pathToProd);
 		$path = $_GET["projectToZip"].'/prod/'.$latest; //no trailing slash!
 		$dbname = $_GET["projectToZip"].'-prod';
+		
+	// download development version		
 	}else{
 		$path = $_GET["projectToZip"]."/dev"; //no trailing slash!
 		$dbname = $_GET["projectToZip"].'-dev';
 	}	
 	
-	//create mysqldump and zip
+	// create files
 	$command = "./zip.sh $dbname $path";
 	exec($command, $output, $return_code);	
-
+	
 	if($return_code != 0){
 		print_r( $output );
-	}
+	}else{	
+		header("Location: ./temp/folder.tar");
+		//downloadTar("./temp/folder.tar", "folder.tar");
+	}   	
 }
 
 ?>
