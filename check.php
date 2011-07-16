@@ -1,5 +1,4 @@
 <?php
-include("inc/util.php");    
 include("inc/Check.class.php");
 include("inc/Project.class.php"); 
                   

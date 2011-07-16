@@ -29,3 +29,25 @@ tr.error {cursor: pointer;}
 #showTip div{
     display:none;
 }
+
+.flash-message {
+	display: block;
+	background-color: #a8d9a3;
+	cursor: pointer;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px; 
+	padding: 10px;
+}
+
+	div.flash-message.error{
+		background-color: #ed4337;
+		padding: 5px;
+		border: 1px solid #666;
+		margin-bottom:10px;
+		color:#fff;
+		cursor: pointer;
+	}
+	
+.flash-message-seperator {
+	display: none;
+	height: 10px; }			

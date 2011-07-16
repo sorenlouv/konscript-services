@@ -1,4 +1,5 @@
 <?php
+include("inc/util.php");
 include("inc/conn.inc.php");
 include("inc/Git.php");
 
@@ -12,6 +13,29 @@ class Check {
     function getChecks(){
         return $this->checks;
     }        
+    
+	function outputResult($verbose = false){	
+		
+		// output errors
+		$html = '<div class="flash-message error">';
+		foreach($this->checks as $check){
+			$html .= $check["name"]. " - ";
+			if($check["status"] == 0){
+				$html .= "Error: " . $check["error"];
+			}elseif(isset($check["success"])){
+				$html .= "Success: " . $check["success"];
+			}
+			$html .= "<br/>";	
+		}
+		$html .= "</div>";
+		
+		// output success
+		if($verbose == false && $this->getNumberOfErrors() == 0){
+			$html = '<div class="flash-message success">Project successfully deployed!</div>';
+		}				
+		
+		return $html;
+	}	    
        
     function getPathToGitRemote(){            
         return "git://github.com/konscript/".$this->projectName.'.git';  
@@ -54,17 +78,21 @@ class Check {
     
 /*************** validations **************/    
     
-    //check if git has been initialized 
+    /**
+     * check if git has been initialized 
+     */    
     function checkGitInit(){
-        $path = $this->getPathToStageFolder($this->stageFolder)."/.git";
+        $path = $this->getPathToStageFolder()."/.git";
         $status = is_dir($path) ? 0 : 1;
         $msg = array("success"=>"Git folder is created in $path", "error"=>"Initialize Git in ".$path);
         $this->addCheck($status, $msg, __function__);                  
     }
     
-    //check if remote 'konscript' has been added            
+    /**
+     * check if remote 'konscript' has been added            
+     */    
     function checkGitRemote(){                                  
-        $path = $this->getPathToStageFolder($this->stageFolder);
+        $path = $this->getPathToStageFolder();
         $status = Git::git_callback('remote -v | grep "'.$this->getPathToGitRemote().'"', $path);
         $msg = array(
             "success"=>"Remote 'konscript' was found in $path", 
@@ -73,21 +101,35 @@ class Check {
         );
         $this->addCheck($status, $msg, __function__); 
     }             
-        
-    //check the directory has the sufficient permissions    
+
+    /**
+     * check the directory has the sufficient permissions. It must be writable    
+     */        
     function checkFolderWritable($git = ""){    
-        $path = $this->getPathToStageFolder($this->stageFolder).$git;
+        $path = $this->getPathToStageFolder().$git;
         $status = is_writable($path) ? 0 : 1;        
         $msg = array("success"=>"Folder is writable in $path", "error"=>"Folder not writable: ".$path, "tip"=> " Change permission for the folder and contents recursively:<br> chmod 770 ".$path." -R");
         $this->addCheck($status, $msg, __function__);    
     }        
     
-    function checkFolderMustExist($git = ""){
-        $path = $this->getPathToStageFolder($this->stageFolder).$git;
+    /**
+     * Check whether the folder exists. Return error if it does NOT
+     */    
+    function checkFolderMustExist($append_directories = ""){
+        $path = $this->getPathToStageFolder().$append_directories;
         $status = is_dir($path) ? 0 : 1;
         $msg = array("success"=>"Folder exists in $path", "error"=>"Folder does not exist: ".$path, "tip"=>"Create directory: <br>mkdir ".$path);
         $this->addCheck($status, $msg, __function__);            
-    }        
+    }   
+    
+	/**
+	 * Analyze the return code from the "git pull" command
+	 ***************************************/    
+    function checkGitPull($git_response){
+        $status = $git_response[0];
+        $msg = array("success"=>$git_response[1], "error"=>$git_response[1]);                      
+        $this->addCheck($status, $msg, __function__);     
+    }             
     
 }       
 ?>

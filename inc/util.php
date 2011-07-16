@@ -1,6 +1,6 @@
 <?php
-//recursively copy entire directory    
-function recurse_copy($src,$dst) { 
+// recursively copy entire directory    
+function recursive_copy($src,$dst) { 
 
     if(is_dir($dst) || !is_dir($src)){
         echo "recurse_copy error";
@@ -13,7 +13,7 @@ function recurse_copy($src,$dst) {
     while(false !== ( $file = readdir($dir)) ) { 
         if (( $file != '.' ) && ( $file != '..' )) { 
             if ( is_dir($src . '/' . $file) ) { 
-                recurse_copy($src . '/' . $file,$dst . '/' . $file); 
+                recursive_copy($src . '/' . $file,$dst . '/' . $file); 
             } 
             else { 
                 copy($src . '/' . $file,$dst . '/' . $file); 

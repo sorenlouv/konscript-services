@@ -1,65 +1,66 @@
 {
-  "after": "d2708f4fe4aa4c32ed82a1596623ee4a701a813c", 
+  "after": "8b79f799ef84a8a38bbbbb6939f6378b442c5148", 
   "base_ref": null, 
-  "before": "1ea6922e80a29f0d5785bf43ce24a5c0787bc8b8", 
+  "before": "ec99f7cef747ef7a9908b3afae598343fb2029c0", 
   "commits": [
     {
-      "added": [], 
+      "added": [
+        "alpha\/index.htm", 
+        "alpha\/uncorporate-identity-2.1-bg.png", 
+        "alpha\/uncorporate-identity-2.1.png"
+      ], 
       "author": {
-        "email": "ksm.andersen@gmail.com", 
-        "name": "Kristian Andersen", 
-        "username": "ksmandersen"
+        "email": "la@laander.com", 
+        "name": "laander", 
+        "username": "laander"
       }, 
       "distinct": true, 
-      "id": "5b5330305a2de82dc582e20621058a49aa4bede7", 
-      "message": "Design structure. Re-commit", 
-      "modified": [
-        "wp-content\/themes\/taniaellis\/footer.php", 
-        "wp-content\/themes\/taniaellis\/functions.php", 
-        "wp-content\/themes\/taniaellis\/header.php", 
-        "wp-content\/themes\/taniaellis\/style.css", 
-        "wp-content\/themes\/taniaellis\/style\/text-styles.css"
-      ], 
+      "id": "e67d6ea72842a7b76dbc6e14f0c672eb8f07f97d", 
+      "message": "draft for new identity added, as webpage with image", 
+      "modified": [], 
       "removed": [], 
-      "timestamp": "2011-06-06T06:41:26-07:00", 
-      "url": "https:\/\/github.com\/konscript\/taniaellis\/commit\/5b5330305a2de82dc582e20621058a49aa4bede7"
+      "timestamp": "2011-06-04T04:17:24-07:00", 
+      "url": "https:\/\/github.com\/konscript\/konteaser\/commit\/e67d6ea72842a7b76dbc6e14f0c672eb8f07f97d"
     }, 
     {
-      "added": [], 
+      "added": [
+        "alpha\/favicon.ico"
+      ], 
       "author": {
-        "email": "ksm.andersen@gmail.com", 
-        "name": "Kristian Andersen", 
-        "username": "ksmandersen"
+        "email": "la@laander.com", 
+        "name": "laander", 
+        "username": "laander"
       }, 
       "distinct": true, 
-      "id": "d52001c6f9648a24ba4c2f0e563e42255f685ed4", 
-      "message": "Corrected syntax. Added page menu.", 
+      "id": "5d8c61e5662955402fe51216801bce387803bc5d", 
+      "message": "added favicon to alpha", 
       "modified": [
-        "wp-content\/themes\/taniaellis\/functions.php"
+        "alpha\/index.htm", 
+        "index.php"
       ], 
       "removed": [], 
-      "timestamp": "2011-06-06T06:49:59-07:00", 
-      "url": "https:\/\/github.com\/konscript\/taniaellis\/commit\/d52001c6f9648a24ba4c2f0e563e42255f685ed4"
+      "timestamp": "2011-06-04T04:44:59-07:00", 
+      "url": "https:\/\/github.com\/konscript\/konteaser\/commit\/5d8c61e5662955402fe51216801bce387803bc5d"
     }, 
     {
-      "added": [], 
+      "added": [
+        "google8f2ec05999a24e65.html"
+      ], 
       "author": {
-        "email": "ksm.andersen@gmail.com", 
-        "name": "Kristian Andersen", 
-        "username": "ksmandersen"
+        "email": "la@laander.com", 
+        "name": "laander", 
+        "username": "laander"
       }, 
       "distinct": true, 
-      "id": "d2708f4fe4aa4c32ed82a1596623ee4a701a813c", 
-      "message": "Modified the gitignore", 
-      "modified": [
-        ".gitignore"
-      ], 
+      "id": "8b79f799ef84a8a38bbbbb6939f6378b442c5148", 
+      "message": "google apps verification file", 
+      "modified": [], 
       "removed": [], 
-      "timestamp": "2011-06-06T06:58:51-07:00", 
-      "url": "https:\/\/github.com\/konscript\/taniaellis\/commit\/d2708f4fe4aa4c32ed82a1596623ee4a701a813c"
+      "timestamp": "2011-06-07T09:24:46-07:00", 
+      "url": "https:\/\/github.com\/konscript\/konteaser\/commit\/8b79f799ef84a8a38bbbbb6939f6378b442c5148"
     }
   ], 
-  "compare": "https:\/\/github.com\/konscript\/taniaellis\/compare\/1ea6922...d2708f4", 
+  "compare": "https:\/\/github.com\/konscript\/konteaser\/compare\/ec99f7c...8b79f79", 
   "created": false, 
   "deleted": false, 
   "forced": false, 
@@ -68,16 +69,16 @@
   }, 
   "ref": "refs\/heads\/master", 
   "repository": {
-    "created_at": "2011\/05\/30 05:02:51 -0700", 
-    "description": "", 
+    "created_at": "2011\/05\/17 07:01:13 -0700", 
+    "description": "Temporary teaser site for Konscript.com", 
     "fork": false, 
-    "forks": 3, 
+    "forks": 1, 
     "has_downloads": true, 
     "has_issues": true, 
     "has_wiki": true, 
-    "homepage": "", 
+    "homepage": "http:\/\/konscript.com", 
     "language": "PHP", 
-    "name": "test", 
+    "name": "konteaser", 
     "open_issues": 0, 
     "organization": "konscript", 
     "owner": {
@@ -85,9 +86,9 @@
       "name": "konscript"
     }, 
     "private": false, 
-    "pushed_at": "2011\/06\/06 06:59:24 -0700", 
-    "size": 100, 
-    "url": "https:\/\/github.com\/konscript\/taniaellis", 
-    "watchers": 3
+    "pushed_at": "2011\/06\/07 09:24:58 -0700", 
+    "size": 5912, 
+    "url": "https:\/\/github.com\/konscript\/konteaser", 
+    "watchers": 1
   }
 }
