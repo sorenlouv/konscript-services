@@ -26,5 +26,5 @@ rm ${tarFile}
 tar -C /srv/www -cpf ${tarFile} ${pathProject}
 
 # create mysqldump and add to archive
-mysqldump -u root -p${pass} ${dbname} > ${sqlFile}
+mysqldump -u ${SQLUser} -p${SQLPass} ${dbname} > ${sqlFile}
 tar -C ${pathTemp} --append --file=${tarFile} $(basename $sqlFile)

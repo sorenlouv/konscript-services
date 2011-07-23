@@ -1,2 +1,3 @@
 #!/bin/bash
-pass="1234"
+SQLUser="root"
+SQLPass="1234"
