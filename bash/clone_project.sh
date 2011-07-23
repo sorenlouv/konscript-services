@@ -5,12 +5,12 @@
 ###########
 
 # set variables
-pass="heyzan"
+source "/srv/www/services/prosty/bash/config.sh"
 projectName="${1}"
 pathProject=${2}
 dbname=${3}
 
-pathTemp="/srv/www/konscript/services/prosty/temp/"
+pathTemp="/srv/www/services/prosty/temp/"
 tarFile="${pathTemp}${projectName}.tar"
 sqlFile="${pathTemp}export.sql"
 
