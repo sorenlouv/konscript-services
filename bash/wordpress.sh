@@ -2,9 +2,9 @@
 
 # set variables
 projectName=${1}
-pathDev=/srv/www/${projectName}/dev
-pathTemp="/srv/www/konscript/services/prosty/temp/"
-pathWPDefaults="/srv/www/konscript/wp-defaults/"
+pathDev="/srv/www/${projectName}/dev"
+pathTemp="/srv/www/services/prosty/temp/"
+pathWPDefaults="/srv/www/services/wp-defaults/"
 wpFile="${pathTemp}latest.tar.gz"
 
 # remove old wordpress installations
