@@ -22,16 +22,7 @@ class Project{
     
     function setCheck($check){
         $this->check = $check;
-    }
-           
-    /**
-     * check if a Github account has been created
-     *************************************************/
-   function checkGithub(){
-        $status = Git::git_callback('ls-remote '. $this->check->getPathToGitRemote());
-        $msg = array("success"=>"Project was found on GitHub", "error"=>"Create project on GitHub");
-        $this->check->addCheck($status, $msg, __function__);           
-   }
+    }          
 
     /**
      * Check Post hook - check if we have receive any payload from GitHub on the current project            

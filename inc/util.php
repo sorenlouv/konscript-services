@@ -23,6 +23,37 @@ function recursive_copy($src,$dst) {
     closedir($dir); 
 }     
 
+// download and extract latest version of wordpress to prod and dev	
+function wp_get_latest($projectName, $wordpress) {
+
+	if($wordpress){
+		$command = "./bash/wordpress.sh ".$projectName;
+		exec($command, $output, $return_code);		
+	
+		// something went wrong!
+		if($return_code != 0){
+			
+			$msg = "command: ".$command."<br>";
+			$msg .= "return code: ".$return_code."<br>";
+									
+			$msg .= "<pre>";
+			$msg .= print_r( $output, true );
+			$msg .= "</pre>";
+			echo $msg;
+			return 1;
+		
+		// wordpress installation went smooth
+		}else{	
+			return 0;	
+		}	
+		
+	// wordpress installation not chosen
+	}else{
+		return 0;	
+	}
+	
+}
+
 function downloadTar($path, $name){
      // Set headers
 	header("Cache-Control: public");

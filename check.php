@@ -12,7 +12,7 @@ $check_prod = new Project($_GET["projectName"], "prod", $check);
 $check_dev = new Project($_GET["projectName"], "dev", $check);    
 
 //General validations
-$check_prod->checkGithub();		   //check GitHub repository 	      	                       	
+$check->checkGithub();		   //check GitHub repository 	      	                       	
 $check_prod->checkHooks(); //Check post-receive hooks		            		   
 $check_prod->checkVirtualHost();  //Check virtual hosts                            
     

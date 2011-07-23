@@ -30,7 +30,7 @@ class Deploy{
 				$next_version = $current_version + 1;
 		
 				// validate that the next version doesn't exist
-				$this->checkFolderCannotExist($path.$next_version);    				          
+				$check->checkFolderCannotExist($path.$next_version);    				          
 				if($check->getNumberOfErrors() == 0){
 					recursive_copy($path.$current_version, $path.$next_version);            
 					
@@ -57,15 +57,5 @@ class Deploy{
 		echo $check->outputResult();		       				                
 
     }                                       
-
-	/**
-	 * VALIDATION: folder must NOT exist
-	 ***************************************/
-    function checkFolderCannotExist($path){
-        $status = !file_exists($path) ? 0 : 1;
-        $msg = array("success"=>"The folder does not exist: $path", "error"=>"The folder already exists: $path");
-        $this->check->addCheck($status, $msg, __function__);    
-    }    
-
 }    
 ?>

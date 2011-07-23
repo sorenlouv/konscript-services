@@ -19,27 +19,33 @@ echo "</table>";
  */
 if(isset($_GET["projectToZip"]) && isset($_GET["branch"])){
 
+	$project_name = $_GET["projectToZip"];
+
 	// download production version
 	if($_GET["branch"]=="prod"){
-		$pathToProd = "/srv/www/".$_GET["projectToZip"]."/prod/";
+		$pathToProd = "/srv/www/".$project_name."/prod/";
 		$latest = get_latest_prod_version($pathToProd);
-		$path = $_GET["projectToZip"].'/prod/'.$latest; //no trailing slash!
-		$dbname = $_GET["projectToZip"].'-prod';
+		$path = $project_name.'/prod/'.$latest; //no trailing slash!
+		$dbname = $project_name.'-prod';
 		
 	// download development version		
 	}else{
-		$path = $_GET["projectToZip"]."/dev"; //no trailing slash!
-		$dbname = $_GET["projectToZip"].'-dev';
+		$path = $project_name."/dev"; //no trailing slash!
+		$dbname = $project_name.'-dev';
 	}	
 	
 	// create files
-	$command = "./zip.sh $dbname $path";
+	$command = "./bash/clone_project.sh $project_name $path $dbname";
 	exec($command, $output, $return_code);	
 	
 	if($return_code != 0){
-		print_r( $output );
+			echo "return code: ".$return_code."<br>";
+			echo "command: ".$command."<br>";
+			echo "<pre>";
+			print_r( $output );
+			echo "</pre>";
 	}else{	
-		header("Location: ./temp/folder.tar");
+		header("Location: ./temp/".$project_name.".tar");
 		//downloadTar("./temp/folder.tar", "folder.tar");
 	}   	
 }

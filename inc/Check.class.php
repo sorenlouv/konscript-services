@@ -17,17 +17,15 @@ class Check {
 	function outputResult($verbose = false){	
 		
 		// output errors
-		$html = '<div class="flash-message error">';
-		foreach($this->checks as $check){
-			$html .= $check["name"]. " - ";
-			if($check["status"] == 0){
-				$html .= "Error: " . $check["error"];
-			}elseif(isset($check["success"])){
-				$html .= "Success: " . $check["success"];
+			$html = '<div class="flash-message error">';
+			foreach($this->checks as $check){			
+				if($check["status"] == 0){
+					$html .= "Error: " . $check["error"] . " [" .$check["name"]."]<br/>";
+				}elseif(isset($check["success"]) && $verbose == true){
+					$html .= "Success: " . $check["success"] . " [" .$check["name"]."]<br/>";
+				}
 			}
-			$html .= "<br/>";	
-		}
-		$html .= "</div>";
+			$html .= "</div>";
 		
 		// output success
 		if($verbose == false && $this->getNumberOfErrors() == 0){
@@ -38,7 +36,7 @@ class Check {
 	}	    
        
     function getPathToGitRemote(){            
-        return "git://github.com/konscript/".$this->projectName.'.git';  
+        return "git@github.com:konscript/".$this->projectName.'.git'; 
     }        
     
     function getNumberOfErrors(){        
@@ -97,7 +95,7 @@ class Check {
         $msg = array(
             "success"=>"Remote 'konscript' was found in $path", 
             "error"=>"Remote 'konscript' missing in: ".$path, 
-            "tip"=> 'cd '.$path.' && git remote add konscript git://github.com/konscript/'.$this->projectName.'.git'
+            "tip"=> 'cd '.$path.' && git remote add konscript '.$this->getPathToGitRemote()
         );
         $this->addCheck($status, $msg, __function__); 
     }             
@@ -113,7 +111,7 @@ class Check {
     }        
     
     /**
-     * Check whether the folder exists. Return error if it does NOT
+     * Error if folder does NOT exist
      */    
     function checkFolderMustExist($append_directories = ""){
         $path = $this->getPathToStageFolder().$append_directories;
@@ -123,13 +121,31 @@ class Check {
     }   
     
 	/**
+	 * Error if folder exists
+	 ***************************************/
+    function checkFolderCannotExist($path){
+        $status = !file_exists($path) ? 0 : 1;
+        $msg = array("success"=>"The folder does not exist: $path", "error"=>"The folder already exists: $path");
+        $this->addCheck($status, $msg, __function__);    
+    }            
+    
+	/**
 	 * Analyze the return code from the "git pull" command
 	 ***************************************/    
     function checkGitPull($git_response){
         $status = $git_response[0];
         $msg = array("success"=>$git_response[1], "error"=>$git_response[1]);                      
         $this->addCheck($status, $msg, __function__);     
-    }             
+    }      
+    
+    /**
+     * check if a Github account has been created
+     *************************************************/
+   function checkGithub(){
+        $status = Git::git_callback('ls-remote '. $this->getPathToGitRemote());
+        $msg = array("success"=>"Project was found on GitHub", "error"=>"Create project on GitHub");
+        $this->addCheck($status, $msg, __function__);           
+   }           
     
 }       
 ?>

@@ -240,7 +240,7 @@ class GitRepo {
 			fclose($pipe);
 		}
 
-		$status = trim(proc_close($resource));
+		$status = trim(proc_close($resource));	
 		if ($status) throw new Exception($stderr);
 
 		return $stdout;
