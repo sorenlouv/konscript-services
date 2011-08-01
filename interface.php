@@ -4,7 +4,7 @@ include("inc/Deploy.class.php");
 $connection = New DbConn();
 $connection->connect();
 
-//prepare statement
+// produce query
 $query = "SELECT deployments.id, repository_name, author_name, last_commit_msg, number_of_commits, created,  number_of_errors, function_name, error_msg FROM deployments 
 LEFT JOIN deployment_errors on deployments.id=deployment_errors.deployment_id 
 ORDER BY deployments.id DESC";

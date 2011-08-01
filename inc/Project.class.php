@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Check individual project for errors
+ ****************/
+
 class Project{
 
     var $check;
@@ -17,8 +21,7 @@ class Project{
 	    $check->checkFolderMustExist("/.git");
 	    $check->checkFolderWritable();
 	    $check->checkFolderWritable("/.git");
-    }
-    
+    }    
     
     function setCheck($check){
         $this->check = $check;

@@ -1,6 +1,10 @@
 <?php
 include("inc/Check.class.php");
 
+/**
+ * Deploy project to prod from interface. Either to an existing version or clone and deploy to a new version
+ ***********/
+
 class Deploy{		
 	var $check;
 

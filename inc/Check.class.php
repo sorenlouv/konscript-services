@@ -3,6 +3,10 @@ include("inc/util.php");
 include("inc/conn.inc.php");
 include("inc/Git.php");
 
+/**
+ * Main class for checks
+ **************/
+
 class Check {
     var $root = "/srv/www/";
     var $checks = array();

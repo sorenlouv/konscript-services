@@ -11,7 +11,7 @@ $check = new Check();
 $check_prod = new Project($_GET["projectName"], "prod", $check);
 $check_dev = new Project($_GET["projectName"], "dev", $check);    
 
-//General validations
+// General validations - only do these once (and not for twice for both dev and prod)
 $check->checkGithub();		   //check GitHub repository 	      	                       	
 $check_prod->checkHooks(); //Check post-receive hooks		            		   
 $check_prod->checkVirtualHost();  //Check virtual hosts                            

@@ -1,5 +1,9 @@
 <?php
 
+/*
+ * Receives payloads from GitHub and processes them. Valid payloads are pulled to appropriate projects, and invalid are ignored.
+ *******************/
+
 class Receiver{		
 	var $payload;
 	var $check;

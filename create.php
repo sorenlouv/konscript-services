@@ -1,13 +1,12 @@
 <?php
 include("inc/Check.class.php");
-include("inc/Project.class.php");            
                      
     // save project
     if($_POST){
         
         $projectName = $_POST["projectName"];
         $full_path_to_project = "/srv/www/".$projectName;
-        
+
         // init check
 		$check = new Check();
         $check->setProjectName($projectName);
@@ -15,9 +14,10 @@ include("inc/Project.class.php");
         // Validations
         $check->checkFolderCannotExist($full_path_to_project); // folder cannot exist
 		$check->checkGithub(); // github project must exist
-		        
+	  
 		if ($check->getNumberOfErrors() == 0){
         
+ 
             // create project root - 02770: leading zero is required; 2 is the sticky bit (set guid); 770 is rwx,rwx,---
             mkdir($full_path_to_project, 02770);
             
@@ -33,7 +33,20 @@ include("inc/Project.class.php");
             // create prod: clone dev to prod
             $full_path_to_prod = $full_path_to_project."/prod";
             mkdir($full_path_to_prod, 02770);
-			recursive_copy($full_path_to_dev, $full_path_to_prod."/1");  
+			recursive_copy($full_path_to_dev, $full_path_to_prod."/1"); 
+
+			
+			// create databases
+			$connection = New DbConn();
+			$connection->connect();
+		
+		    // create prod database
+		    $dbname2 = $projectName."-prod";
+			$connection->query("CREATE DATABASE `".$dbname2."`");
+		    
+		    // create dev database
+		    $dbname2 = $projectName."-dev";
+			$connection->query("CREATE DATABASE `".$dbname2."`");
                         
             header("Location: check.php?projectName=".$projectName);
             
