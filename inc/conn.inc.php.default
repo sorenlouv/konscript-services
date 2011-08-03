@@ -1,0 +1,36 @@
+<?php
+class DbConn {
+	private $_host = "localhost";
+    private $_user = "user";
+    private $_password = "pass";
+    private $_database = "database";	
+	
+	public function connect() {
+	  /* Connecting, selecting database */
+	  $this->_link = new mysqli($this->_host, $this->_user, $this->_password, $this->_database);
+	  /* check connection */
+	  if (mysqli_connect_errno()) {
+	      die("Could not connect: ".mysqli_connect_error());
+	  }
+	}
+	
+	/*
+	 * Closes the connection to the DB
+	 */
+	public function disconnect() {
+	  $this->_link->close();
+	}
+	
+	public function prep_stmt($query) {
+	  $stmt = $this->_link->prepare($query) or die (
+	    "Could not prepare statement<br>".$query."<br>".$this->_link->error);
+	  return $stmt;
+	}
+	
+	public function query($query) {
+	  $stmt = $this->_link->query($query) or die ($this->_link->error);
+  	  return $stmt;
+	}
+}
+?>
+

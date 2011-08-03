@@ -76,7 +76,32 @@ class Check {
             $msg["status"] = 1;
         }
         $this->checks[] = $msg;  
-   }                      
+   }           
+   
+	/**
+	 * purge entire nginx cache for the current project
+	 ***/	  
+	function clearCache($projectName = false){    	
+		$projectName = !$projectName ? $this->projectName : $projectName;
+		$path_to_nginx_cache ="/var/cache/nginx/cached/".$projectName;    	
+		chdir($path_to_nginx_cache);
+
+		$status = 1;		
+		if(getcwd()==$path_to_nginx_cache && trim(shell_exec("pwd"))==$path_to_nginx_cache){
+			//exec("find -type f -exec rm -f {} \;", $output, $status);
+			$status = 0;
+		}
+
+		$error_msg = "Cache not cleared in: $path_to_nginx_cache (";
+		$error_msg .= " PHP: ".getcwd();
+		$error_msg .= " Shell: ".shell_exec("pwd").")";
+
+		$msg = array(
+			"success"=>"Cache cleared in: $path_to_nginx_cache", 
+			"error"=>$error_msg
+		);
+		$this->addCheck($status, $msg, __function__);		
+	}		              
     
 /*************** validations **************/    
     

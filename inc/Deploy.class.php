@@ -24,7 +24,7 @@ class Deploy{
 		$check->checkFolderWritable();       
 		$check->checkFolderWritable("/.git");		
 				
-		// validators passed
+		// intial validators passed
 		if ($check->getNumberOfErrors() == 0){
 			$path = $check->root.$project_name."/prod/";
 			$current_version = get_latest_prod_version($path);
@@ -51,13 +51,17 @@ class Deploy{
 				$version = $current_version;
 			}
 			
-			if($check->getNumberOfErrors() == 0){
+			// clear cache
+			$check->clearCache();
+			
+			// final validators passed
+			if($check->getNumberOfErrors() == 0){						
 				$git_response = Git::git_callback('pull konscript master', $path.$version, true);
 				$check->checkGitPull($git_response);  
 			}
 			                                        
 		}	
-				
+								
 		echo $check->outputResult();		       				                
 
     }                                       

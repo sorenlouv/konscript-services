@@ -33,7 +33,7 @@ class Receiver{
     
     function setCheck($check){
         $this->check = $check;
-    }    
+    }       
 
 /*************** validation methods ******************/   
     
