@@ -34,19 +34,16 @@ include("inc/Check.class.php");
             $full_path_to_prod = $full_path_to_project."/prod";
             mkdir($full_path_to_prod, 02770);
 			recursive_copy($full_path_to_dev, $full_path_to_prod."/1"); 
-
 			
 			// create databases
 			$connection = New DbConn();
 			$connection->connect();
 		
 		    // create prod database
-		    $dbname2 = $projectName."-prod";
-			$connection->query("CREATE DATABASE `".$dbname2."`");
+			$connection->query("CREATE DATABASE IF NOT EXISTS `".$projectName."-prod`");
 		    
 		    // create dev database
-		    $dbname2 = $projectName."-dev";
-			$connection->query("CREATE DATABASE `".$dbname2."`");
+			$connection->query("CREATE DATABASE IF NOT EXISTS `".$projectName."-dev`");
                         
             header("Location: check.php?projectName=".$projectName);
             
