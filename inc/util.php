@@ -176,7 +176,7 @@ function get_list_of_folders($dir){
     	
         $dh = opendir($dir);
         while (($file = readdir($dh)) !== false) {
-            if(is_dir($dir . $file) == true && $file!=".." && $file!="."){
+            if(is_dir($dir . $file) == true && !is_link($dir . $file) && $file!=".." && $file!="."){
 
                 $folders[] = $file;  
             }              
