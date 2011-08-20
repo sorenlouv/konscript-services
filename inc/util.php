@@ -156,9 +156,7 @@ function get_latest_prod_version($dir){
         if(is_numeric($folder) == true){
             $versions[] = $folder;
         }
-    }
-        
-    rsort($versions, SORT_NUMERIC);  
+    }       
     
     //return the newest folder. If none exist return false   
     return count($versions) == 0 ? 1 : $versions[0];
@@ -184,7 +182,8 @@ function get_list_of_folders($dir){
             }              
         }
         closedir($dh);
-    }         
+    }    
+	rsort($folders, SORT_NUMERIC);       
     return $folders;
 }
 
