@@ -10,6 +10,7 @@ $connection->connect();
  **/
 
 // get projects stored in database
+$db_projects = array();
 $result = $connection->query("SELECT id FROM projects");
 while($projects = $result->fetch_assoc()){
 	$db_projects[] = $projects["id"];
