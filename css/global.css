@@ -1,3 +1,8 @@
+*{
+	margin:0;
+	padding:0;
+}
+
 table#deploylist{ width: 100%; }
 table#deploylist thead{
     font-weight:bold;
@@ -51,3 +56,73 @@ tr.error {cursor: pointer;}
 .flash-message-seperator {
 	display: none;
 	height: 10px; }			
+	
+.clear{
+	clear:both;
+}	
+	
+/*********************
+ * cron 
+ *********************/	
+#newProjects thead{
+	font-weight: bold;
+}
+
+#newProjects tr:hover{
+	font-weight: bold;
+}
+
+#newProjects .projectId{
+	text-align: right;	
+	padding: 5px;
+	width: 100px;
+}
+
+#newProjects .radio{
+	text-align: center;
+	width: 50px;
+}
+
+/*******************
+ * projects: index
+ *******************/
+div.projectOverview{
+	border-bottom: 1px solid black;
+	width: 800px;
+	float:left;
+	height: 150px;
+	overflow:hidden;
+	position:relative;
+}
+	div.projectOverview div.status{float:left;margin:0 20px;vertical-align:center;}
+			div.projectOverview div.status a.success{ background-color:green; }
+			div.projectOverview div.status a.error{ background-color:red; }	
+			div.projectOverview div.status a{
+				text-decoration:none;
+				display:block;
+				width:15px;
+				height:15px;
+				border-radius:15px;
+				position: relative; 
+				top: 66px;				
+			}
+			
+	
+	div.projectOverview img{float:left;height:150px;width:140px;}		
+	div.projectOverview div.info{float:left; margin: 10px;}
+	
+		div.projectOverview .info p.title{font-size:1.4em;}
+		
+		div.projectOverview .info a.url{display:block;}
+						
+		div.projectOverview .info div.toolbar{
+			text-align:right;
+			position:absolute; 			
+			right: 5px;
+			bottom: 5px;
+			height: 20px;
+			width: 590px;
+		}				
+			div.projectOverview .info div.toolbar p.version{ float: left;}						
+			div.projectOverview .info div.toolbar a{ margin-left:10px; }
+			

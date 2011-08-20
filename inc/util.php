@@ -1,4 +1,50 @@
 <?php
+
+function getValidHostname($hostnames, $i=0){
+	$ip = gethostbyname($hostnames[$i]);
+	if ( preg_match('/^\d+/', $ip) != 0 ) {
+		$address = $hostnames[$i];
+		return $address;
+	}elseif((count($hostnames)-1)>$i){
+		$i++;
+		return getValidHostname($hostnames, $i);
+	}else{
+		return false;
+	}
+}
+
+function update_screenshot($hostnames, $project_id){
+	global $service_root;
+	$hostname = getValidHostname($hostnames);
+	
+	if($hostname){
+		echo $project_id;	
+		set_time_limit(360);
+		$command = $service_root."wkhtmltoimage --height 1024 $hostname ".$service_root."img/screenshots/".$project_id.".jpg";
+		exec($command, $status_msg, $status_code);
+		return array($status_msg, $status_code);
+	}else{
+		return false;
+	}
+}
+
+// format print_r
+function dump($data) {
+    if(is_array($data)) {
+        print "<pre>-----------------------\n";
+        print_r($data);
+        print "-----------------------</pre>";
+    } elseif (is_object($data)) {
+        print "<pre>==========================\n";
+        var_dump($data);
+        print "===========================</pre>";
+    } else {
+        print "=========&gt; $data: ";
+        var_dump($data);
+        print " &lt;=========<br>";
+    }
+} 
+
 // recursively copy entire directory    
 function recursive_copy($src,$dst) { 
 
@@ -54,20 +100,40 @@ function wp_get_latest($projectName, $wordpress) {
 	
 }
 
-function downloadTar($path, $name){
-     // Set headers
-	header("Cache-Control: public");
-	header("Content-Description: File Transfer");
-	header('Content-Length: ' . filesize($path));     
-	header('Content-Disposition: attachment; filename=' . basename($path));
-	header("Content-Type: application/zip");
-	header("Content-Transfer-Encoding: binary");
+/********
+ * Create and download zipped project
+ ********/
+function downloadZip($project_name, $branch){	
 
-     // Read the file from disk
-     readfile($path);	
-}
+	// download production version
+	if($branch=="prod"){
+		$path = $project_name.'/prod/current';
+		$dbname = $project_name.'-prod';
+	
+	// download development version		
+	}else{
+		$path = $project_name."/dev";
+		$dbname = $project_name.'-dev';
+	}	
 
-//recursive remove directory
+	// create files
+	$command = "./bash/clone_project.sh $project_name $path $dbname";
+	exec($command, $output, $return_code);	
+
+	if($return_code != 0){
+			echo "return code: ".$return_code."<br>";
+			echo "command: ".$command."<br>";
+			echo "<pre>";
+			print_r( $output );
+			echo "</pre>";
+	}else{	
+		header("Location: ./temp/".$project_name.".tar");
+	}   	
+}	
+
+/**
+ * recursive remove directory
+ */
 function rrmdir($dir) { 
 
    if (is_dir($dir) && !empty($dir)) { 
@@ -82,14 +148,6 @@ function rrmdir($dir) {
    } 
  } 
  
-//get all projects from root folder
-function getProjects($root){
-    $folders = get_list_of_folders($root);
-    $ignore_folders = array("viewgit", "services", "phpmyadmin", "temp");
-    $projects = array_diff($folders, $ignore_folders);  
-    return $projects;      
-}     
-
 //get the folder with the highest number (newest version)
 function get_latest_prod_version($dir){
     $folders = get_list_of_folders($dir);
@@ -106,25 +164,28 @@ function get_latest_prod_version($dir){
     return count($versions) == 0 ? 1 : $versions[0];
 }
 
-//get a list of folders in a specific path
+/** 
+ * get a list of folders in a specific path
+ */
 function get_list_of_folders($dir){
     
     $folders = array();    
-    if (is_dir($dir)) {
-            $dh = opendir($dir);
-            while (($file = readdir($dh)) !== false) {
-                if(is_dir($dir . $file) == true && $file!=".." && $file!="."){
+    if (is_dir($dir)) {    		
+    
+		// append trailing slash if omitted
+    	$lastLetter = substr($dir, -1);	    		    		    	
+    	$dir .= $lastLetter != "/" ? "/" : "";
+    	
+        $dh = opendir($dir);
+        while (($file = readdir($dh)) !== false) {
+            if(is_dir($dir . $file) == true && $file!=".." && $file!="."){
 
-                    $folders[] = $file;  
-                }              
-            }
-            closedir($dh);
+                $folders[] = $file;  
+            }              
+        }
+        closedir($dh);
     }         
     return $folders;
-}
-
-function getTempLink(){
-    return 'The <a href="http://temp.konscript.dk">temporary link</a> currently points to:<br> '. readlink("/srv/www/temp/link1");
 }
 
 /**

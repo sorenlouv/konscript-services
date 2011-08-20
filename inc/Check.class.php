@@ -1,18 +1,23 @@
 <?php
-include("inc/util.php");
-include("inc/conn.inc.php");
-include("inc/Git.php");
+include("conn.inc.php");
+include("util.php");
+include("Git.php");
 
 /**
  * Main class for checks
  **************/
 
 class Check {
-    var $root = "/srv/www/";
     var $checks = array();
     var $projectName;
     var $number_of_errors = 0;
     var $stageFolder;
+    
+    // constructor - set root
+    function check(){
+    	global $web_root;
+    	$this->web_root = $web_root;
+    }
         
     function getChecks(){
         return $this->checks;
@@ -49,9 +54,9 @@ class Check {
 
     function getPathToStageFolder(){
         if($this->stageFolder=="dev"){
-            return $this->root.$this->projectName."/dev";
+            return $this->web_root.$this->projectName."/dev";
         }else{
-              $prod_folder = $this->root.$this->projectName."/prod/";
+              $prod_folder = $this->web_root.$this->projectName."/prod/";
               if(!isset($this->latestProdVersion)){
                   $this->latest_prod_version = get_latest_prod_version($prod_folder);                
               }

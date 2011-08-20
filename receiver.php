@@ -19,7 +19,7 @@ $receiver = new Receiver($payload, $check);
 
 //passed all preliminary validators
 if ($check->getNumberOfErrors() == 0){
-	$git_response = Git::git_callback('pull konscript master', "/srv/www/".$receiver->payload->repository->name."/dev", true);
+	$git_response = Git::git_callback('pull konscript master', $web_root.$receiver->payload->repository->name."/dev", true);
 	$check->checkGitPull($git_response);                                          
 }
 

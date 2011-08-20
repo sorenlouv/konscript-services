@@ -38,10 +38,10 @@ class Deploy{
 				if($check->getNumberOfErrors() == 0){
 					recursive_copy($path.$current_version, $path.$next_version);            
 					
-					// add temporary virtual host
-					$pathToTemp = $check->root."temp/link1";
-					unlink($pathToTemp);
-					symlink($path.$next_version, $pathToTemp);  					
+					// change current symlink
+					$pathToCurrent = $path."current";
+					unlink($pathToCurrent);
+					symlink($path.$next_version, $pathToCurrent);  					
 				}
 			
 				$version = $next_version;
