@@ -18,7 +18,7 @@ while($projects = $result->fetch_assoc()){
 		<div class="info">
 			<p class="title"><?php echo $projects["title"]; ?></p>
 			<a href="http://<?php echo $projects["prod_address"]; ?>" class="url"><?php echo $projects["prod_address"]; ?></a>
-			<a  href="http://<?php echo $projects["prod_address"]; ?>" class="url"><?php echo $projects["dev_address"]; ?></a>
+			<a  href="http://<?php echo $projects["dev_address"]; ?>" class="url"><?php echo $projects["dev_address"]; ?></a>
 			<div class="toolbar">
 				<p class="version">Version: <?php echo $projects["current_version"]; ?></p>
 				<a href="/Projects/cron.php?errorStatus=1&screenshot=1&id=<?php echo $projects["id"]; ?>">Update</a>
