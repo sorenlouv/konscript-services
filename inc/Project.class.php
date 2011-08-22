@@ -1,4 +1,4 @@
-<?php
+'<?php
 
 /**
  * Check individual project for errors
@@ -33,7 +33,7 @@ class Project{
      *************************************************/
     function checkVirtualHost(){
         $file = "/etc/apache2/sites-available/".$this->check->projectName;
-        $msg = array("success"=>"Virtual host correctly setup", "error"=>"No virtual host file was found:". $file ." ".print_r(file_exists($file)));
+        $msg = array("success"=>"Virtual host correctly setup", "error"=>"No virtual host file was found:");
         $status = file_exists($file) ? 0 : 1;
         $msg["tip"] = "Create virtual host file: /etc/apache2/sites-available/".$this->check->projectName;        
         $this->check->addCheck($status, $msg, __function__);
