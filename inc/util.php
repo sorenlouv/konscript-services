@@ -125,7 +125,7 @@ function downloadZip($project_id, $branch){
 	$command = $service_root."bash/download_project.sh $project_id $path $dbname";
 	exec($command, $output, $return_code);	
 
-	if($return_code == 0){
+	if($return_code != 0){
 			echo "return code: ".$return_code."<br>";
 			echo "command: ".$command."<br>";
 			echo "<pre>";
