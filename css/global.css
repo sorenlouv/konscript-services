@@ -108,12 +108,14 @@ div.projectOverview{
 			}
 			
 	
-	div.projectOverview img{float:left;height:150px;width:140px;}		
+	div.projectOverview img.screenshot{float:left;height:150px;width:140px;}		
 	div.projectOverview div.info{float:left; margin: 10px;}
 	
-		div.projectOverview .info p.title{font-size:1.4em;}
+		div.projectOverview .info p.title{font-size:1.4em;margin-bottom:10px;}
 		
-		div.projectOverview .info a.url{display:block;}
+		div.projectOverview .info p.url{margin-bottom:5px;}		
+			div.projectOverview .info p.url img{padding-right:10px;}
+			div.projectOverview .info p.url a{vertical-align:top;}
 						
 		div.projectOverview .info div.toolbar{
 			text-align:right;

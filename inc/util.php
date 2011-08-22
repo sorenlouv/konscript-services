@@ -103,31 +103,36 @@ function wp_get_latest($projectName, $wordpress) {
 /********
  * Create and download zipped project
  ********/
-function downloadZip($project_name, $branch){	
-
+function downloadZip($project_id, $branch){	
+	global $service_root;
+	global $web_root;
+	
 	// download production version
 	if($branch=="prod"){
-		$path = $project_name.'/prod/current';
-		$dbname = $project_name.'-prod';
+		$path = $project_id.'/prod/current';
+		
+		// get target from symlink
+		$path = readlink($web_root.$path);		
+		$dbname = $project_id.'-prod';
 	
 	// download development version		
 	}else{
-		$path = $project_name."/dev";
-		$dbname = $project_name.'-dev';
+		$path = $web_root.$project_id."/dev";
+		$dbname = $project_id.'-dev';
 	}	
 
 	// create files
-	$command = "./bash/clone_project.sh $project_name $path $dbname";
+	$command = $service_root."bash/download_project.sh $project_id $path $dbname";
 	exec($command, $output, $return_code);	
 
-	if($return_code != 0){
+	if($return_code == 0){
 			echo "return code: ".$return_code."<br>";
 			echo "command: ".$command."<br>";
 			echo "<pre>";
 			print_r( $output );
 			echo "</pre>";
 	}else{	
-		header("Location: ./temp/".$project_name.".tar");
+		header("Location: /temp/".$project_id.".tar");
 	}   	
 }	
 
