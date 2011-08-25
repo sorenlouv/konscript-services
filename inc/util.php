@@ -71,7 +71,7 @@ function recursive_copy($src,$dst) {
 
 // download and extract latest version of wordpress to prod and dev	
 function wp_get_latest($project_id, $wordpress) {
-
+	global $service_root;
 	if($wordpress){
 
 		$command = $service_root."bash/download_wordpress.sh ".$project_id;
@@ -347,7 +347,7 @@ server {
 '.vhost_nginx_dev($dev_domain).'
 	
 	location / {
-	    expires                 1m;
+	    expires                 -10s;
 	    proxy_pass              http://127.0.0.1:8080;
 	}
 }';
