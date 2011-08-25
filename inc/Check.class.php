@@ -96,7 +96,8 @@ class Check {
 		$chdir = is_dir($path_to_nginx_cache) ? chdir($path_to_nginx_cache) : false;
 
 		if($chdir && getcwd()==$path_to_nginx_cache && trim(shell_exec("pwd"))==$path_to_nginx_cache){
-			exec("find -type f -exec rm -f {} \;", $output, $status);
+			//exec("find -type f -exec rm -f {} \;", $output, $status);
+			echo "CACHE CLEAR: $path_to_nginx_cache (temp. disabled due to testing)";			
 			$status = 0;
 		}else{
 			echo $path_to_nginx_cache;
