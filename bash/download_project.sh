@@ -29,6 +29,7 @@ if [ $? == 0 ]; then {
 	
 	# create tar archive with web files and mysqldump
 	tar --create --file=${tarFile} -C ${cwdToFolder} ${folderToZip} -C ${pathTemp} export.sql
+	echo "success"
 } fi
 
 

@@ -131,12 +131,12 @@ function downloadZip($project_id, $branch){
 		if($return_code != 0){
 				echo "return code: ".$return_code."<br>";
 				echo "command: ".$command."<br>";
-				echo "<pre>";
-				print_r( $output );
-				echo "</pre>";
-		}else{	
+	                        dump($output);
+		}elseif(in_array("success", $output)){	
 			header("Location: /temp/".$project_id.".tar");
-		}   	
+		}else{
+			dump($output);
+		}
 	}else{
 		echo"Path does not exist";
 	}
