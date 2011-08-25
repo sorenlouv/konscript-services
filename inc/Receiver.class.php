@@ -12,7 +12,7 @@ class Receiver{
 		//set variables  
         $this->setPayload($payload);        
         $this->setCheck($check);
-        $check->setProjectName($this->payload->repository->name);    
+        $check->setProjectId($this->payload->repository->name);    
         $check->setStageFolder("dev");    
             
 	    //validators                                                    

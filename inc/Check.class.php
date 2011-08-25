@@ -9,7 +9,7 @@ include("Git.php");
 
 class Check {
     var $checks = array();
-    var $projectName;
+    var $project_id;
     var $number_of_errors = 0;
     var $stageFolder;
     
@@ -45,8 +45,12 @@ class Check {
 	}	    
        
     function getPathToGitRemote(){            
-        return "git@github.com:konscript/".$this->projectName.'.git'; 
+        return "git@github.com:konscript/".$this->project_id.'.git'; 
     }        
+    
+    function getDefaultDevDomain(){            
+        return $this->project_id.'.konscript.com'; 
+    }            
     
     function getNumberOfErrors(){        
         return $this->number_of_errors;
@@ -54,9 +58,9 @@ class Check {
 
     function getPathToStageFolder(){
         if($this->stageFolder=="dev"){
-            return $this->web_root.$this->projectName."/dev";
+            return $this->web_root.$this->project_id."/dev";
         }else{
-              $prod_folder = $this->web_root.$this->projectName."/prod/";
+              $prod_folder = $this->web_root.$this->project_id."/prod/";
               if(!isset($this->latestProdVersion)){
                   $this->latest_prod_version = get_latest_prod_version($prod_folder);                
               }
@@ -64,8 +68,8 @@ class Check {
         }
     }        
     
-    function setProjectName($projectName){
-        $this->projectName = $projectName;
+    function setProjectId($project_id){
+        $this->project_id = $project_id;
     }        
 
     function setStageFolder($stageFolder){
@@ -86,17 +90,23 @@ class Check {
 	/**
 	 * purge entire nginx cache for the current project
 	 ***/	  
-	function clearCache($projectName = false){    	
-		$projectName = !$projectName ? $this->projectName : $projectName;
-		$path_to_nginx_cache ="/var/cache/nginx/cached/".$projectName;    	
-		chdir($path_to_nginx_cache);
+	function clearCache($project_id = false){    	
+		$project_id = !$project_id ? $this->project_id : $project_id;
+		$path_to_nginx_cache ="/var/cache/nginx/cached/".$project_id;    			
+		$chdir = is_dir($path_to_nginx_cache) ? chdir($path_to_nginx_cache) : false;
 
-		$status = 1;		
-		if(getcwd()==$path_to_nginx_cache && trim(shell_exec("pwd"))==$path_to_nginx_cache){
-			//exec("find -type f -exec rm -f {} \;", $output, $status);
+		if($chdir && getcwd()==$path_to_nginx_cache && trim(shell_exec("pwd"))==$path_to_nginx_cache){
+			exec("find -type f -exec rm -f {} \;", $output, $status);
 			$status = 0;
+		}else{
+			echo $path_to_nginx_cache;
+			$status = 1;		
+			var_dump($chdir);
+			var_dump(getcwd()==$path_to_nginx_cache);
+			var_dump(trim(shell_exec("pwd"))==$path_to_nginx_cache);
 		}
 
+		// build error message
 		$error_msg = "Cache not cleared in: $path_to_nginx_cache (";
 		$error_msg .= " PHP: ".getcwd();
 		$error_msg .= " Shell: ".shell_exec("pwd").")";
@@ -180,6 +190,44 @@ class Check {
         $msg = array("success"=>"Project was found on GitHub", "error"=>"Create project on GitHub");
         $this->addCheck($status, $msg, __function__);           
    }           
+   
+    /**
+     * check that virtual file exists
+     *************************************************/
+    function checkVhostApache(){
+        $file = "/etc/apache2/sites-available/".$this->project_id;
+        $msg = array("success"=>"Apache virtual host was found", "error"=>" Apache virtual host is missing:");
+        $status = file_exists($file) ? 0 : 1;
+        $msg["tip"] = "Create virtual host: /etc/apache2/sites-available/".$this->project_id;        
+        $this->addCheck($status, $msg, __function__);
+    }        
+
+    /**
+     * check that virtual file exists
+     *************************************************/
+    function checkVhostNginx(){
+        $file = "/etc/nginx/sites-available/".$this->project_id;
+        $msg = array("success"=>"Nginx virtual host was found", "error"=>"Nginx virtual host is missing:");
+        $status = file_exists($file) ? 0 : 1;
+        $msg["tip"] = "Create virtual host: /etc/nginx/sites-available/".$this->project_id;        
+        $this->addCheck($status, $msg, __function__);
+    }        
+
+	/**
+	 * Check individual project for errors
+	 ****************/   
+   function checkProject($stageFolder){   
+    	//set variables
+
+        $this->setStageFolder($stageFolder);
+        		    
+	    //validators	            	       	    
+        $this->checkGitRemote();  
+	    $this->checkFolderMustExist();
+	    $this->checkFolderMustExist("/.git");
+	    $this->checkFolderWritable();
+	    $this->checkFolderWritable("/.git");      
+   }
     
 }       
 ?>

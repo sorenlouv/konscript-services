@@ -55,7 +55,7 @@ foreach($rows as $commit){
             $html .= "
             <tr class='details i_".$commit["created"]."'>
                 <td>&nbsp;</td>
-                <td><a href='check.php?projectName=".$commit["project_id"]."'>(check)</a></td>
+                <td><a href='/Projects/check.php?id=".$commit["project_id"]."'>(check)</a></td>
                 <td><b>".$array[0]."</b><br>".$array[1]."</td>
                 <td>&nbsp;</td>
             </tr>";

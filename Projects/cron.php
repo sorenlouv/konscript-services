@@ -1,6 +1,5 @@
 <?php
 include("../inc/Check.class.php");
-include("../inc/Project.class.php");
 
 $connection = New DbConn();
 $connection->connect();
@@ -14,12 +13,15 @@ if(isset($_GET["errorStatus"])){
 	$result = $connection->query("SELECT id, errors FROM projects WHERE exclude='0'");
 	while($project = $result->fetch_assoc()){
 	
-		// get status
+		// get status	
 		$check = new Check();
-		$check_prod = new Project($project["id"], "prod", $check);
-		$check_dev = new Project($project["id"], "dev", $check);    
-		$check->checkGithub();	      	                       	
-		$check_prod->checkVirtualHost();
+		$check->setProjectId($_GET["id"]);
+
+		$check->checkProject("prod");
+		$check->checkProject("dev");    
+		$check->checkGithub();
+		$check->checkVhostApache();
+		$check->checkVhostNginx();		
 		$number_of_errors = $check->getNumberOfErrors();	
 
 		// update status	
@@ -36,12 +38,12 @@ if(isset($_GET["errorStatus"])){
  * update pending screenshots 
  */
 if(isset($_GET["screenshot"])){
-	$pending_screenshots = $connection->query("SELECT id, prod_address, dev_address FROM projects WHERE exclude='0' && screenshot='1'");
+	$pending_screenshots = $connection->query("SELECT id, primary_domain, dev_domain FROM projects WHERE exclude='0' && screenshot='1'");
 	while($project = $pending_screenshots->fetch_assoc()){
 		$json["screenshot"][] = $project["id"];
 	
 		// update screenshot
-		$hostnames = array($project["prod_address"], $project["dev_address"]);
+		$hostnames = array($project["primary_domain"], $project["dev_domain"]);
 		$shell_return = update_screenshot($hostnames, $project["id"]);	
 	
 		// update db

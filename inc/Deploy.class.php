@@ -14,7 +14,7 @@ class Deploy{
     	        
 		// set variables  
         $this->check = $check;
-	    $check->setProjectName($project_name);    	        
+	    $check->setProjectId($project_name);    	        
         $check->setStageFolder("prod");    
             
 	    // validators                                                    
@@ -51,8 +51,9 @@ class Deploy{
 				$version = $current_version;
 			}
 			
-			// clear cache
+			// clear cache for current project and for global
 			$check->clearCache();
+			$check->clearCache("global");			
 			
 			// final validators passed
 			if($check->getNumberOfErrors() == 0){						

@@ -128,3 +128,23 @@ div.projectOverview{
 			div.projectOverview .info div.toolbar p.version{ float: left;}						
 			div.projectOverview .info div.toolbar a{ margin-left:10px; }
 			
+/*******************
+ * projects: add/edit
+ *******************/
+.field{	margin-bottom: 10px;}
+	div.projectEdit label{
+		display:block;
+		width: 170px;
+		text-align:right;
+		margin-right: 10px;
+		float:left;
+	}
+	div.projectEdit .field input{ width:200px;text-align:left;}
+
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}

@@ -29,8 +29,8 @@ function update_screenshot($hostnames, $project_id){
 }
 
 // format print_r
-function dump($data) {
-    if(is_array($data)) {
+function dump($data, $pre=0) {
+    if(is_array($data) || $pre==1) {
         print "<pre>-----------------------\n";
         print_r($data);
         print "-----------------------</pre>";
@@ -70,11 +70,12 @@ function recursive_copy($src,$dst) {
 }     
 
 // download and extract latest version of wordpress to prod and dev	
-function wp_get_latest($projectName, $wordpress) {
+function wp_get_latest($project_id, $wordpress) {
 
 	if($wordpress){
-		$command = "./bash/wordpress.sh ".$projectName;
-		exec($command, $output, $return_code);		
+
+		$command = $service_root."bash/download_wordpress.sh ".$project_id;
+		exec("$command 2>&1", $output, $return_code);		
 	
 		// something went wrong!
 		if($return_code != 0){
@@ -121,19 +122,24 @@ function downloadZip($project_id, $branch){
 		$dbname = $project_id.'-dev';
 	}	
 
-	// create files
-	$command = $service_root."bash/download_project.sh $project_id $path $dbname";
-	exec($command, $output, $return_code);	
+	if(is_dir($path)){
+		// create files
+		$command = $service_root."bash/download_project.sh $project_id $path $dbname";
+		exec("$command  2>&1", $output, $return_code);	
+		echo $command;
 
-	if($return_code != 0){
-			echo "return code: ".$return_code."<br>";
-			echo "command: ".$command."<br>";
-			echo "<pre>";
-			print_r( $output );
-			echo "</pre>";
-	}else{	
-		header("Location: /temp/".$project_id.".tar");
-	}   	
+		if($return_code != 0){
+				echo "return code: ".$return_code."<br>";
+				echo "command: ".$command."<br>";
+				echo "<pre>";
+				print_r( $output );
+				echo "</pre>";
+		}else{	
+			header("Location: /temp/".$project_id.".tar");
+		}   	
+	}else{
+		echo"Path does not exist";
+	}
 }	
 
 /**
@@ -242,4 +248,123 @@ function Zip($source, $destination)
 
     return false;
 }
+
+function createFile($filename, $content){
+	$fp = fopen($filename, 'w');
+	fwrite($fp, $content);
+	fclose($fp);
+}
+
+// update nginx primary domain
+function vhost_apache_primary($primary_domain){
+	return '	 ServerName '.$primary_domain;
+}
+
+// update nginx development domain
+function vhost_apache_dev($dev_domain){
+	return '	 ServerName '.$dev_domain;
+}
+
+function vhost_apache($project_id, $primary_domain, $dev_domain){
+	return "<VirtualHost 127.0.0.1:8080>
+	 ServerAdmin admin@konscript.com
+".vhost_apache_primary($primary_domain)."
+	 DocumentRoot /srv/www/".$project_id."/prod/current
+	 # ErrorLog /var/log/apache2/".$project_id."/error.log
+	 # CustomLog /var/log/apache2/".$project_id."/access.log combined
+</VirtualHost>
+
+<VirtualHost 127.0.0.1:8080>
+	 ServerAdmin admin@konscript.com
+".vhost_apache_primary($dev_domain)."
+	 DocumentRoot /srv/www/".$project_id."/dev
+</VirtualHost>";
+
+}
+
+// update nginx additional domains
+function vhost_nginx_additional($primary_domain, $additional_domains){
+	return '	server_name  	*.'.$primary_domain.' '.$additional_domains.';';
+}
+
+// update nginx primary domain
+function vhost_nginx_rewrite($primary_domain){
+	return '	rewrite   ^ 	http://'.$primary_domain.'$request_uri?;';
+}
+
+// update nginx primary domain
+function vhost_nginx_primary($primary_domain){
+	return '	server_name 		'.$primary_domain.';';
+}
+
+// update nginx development domain
+function vhost_nginx_dev($dev_domain){
+	return '	server_name		 '.$dev_domain.';';
+}
+
+// create nginx vhost
+function vhost_nginx($project_id, $primary_domain, $dev_domain, $additional_domains){
+
+return '# redirect additional domains
+server {
+'.vhost_nginx_additional($primary_domain, $additional_domains).'
+'.vhost_nginx_rewrite($primary_domain).'	
+}
+
+# primary domain
+server {
+
+	##############
+	# variables
+	##############	
+'.vhost_nginx_primary($primary_domain).'
+	root				/srv/www/'.$project_id.'/prod/current;
+	proxy_cache     	global;
+
+	##############
+	# Purge cache
+	##############
+	location ~ /purge(/.*) {
+		proxy_cache_purge global $scheme$host$1$is_args$args;
+	}
+
+	##############
+	# Logging Settings
+	##############
+	# access_log /var/log/apache2/'.$project_id.'/nginx_access.log;
+	# error_log /var/log/apache2/'.$project_id.'/nginx_error.log;
+
+	##############
+	# includes
+	##############
+	include includes/files.conf;
+	include includes/wordpress.conf;
+	include includes/restrictions.conf;
+}
+
+# dev
+server { 
+'.vhost_nginx_dev($dev_domain).'
+	
+	location / {
+	    expires                 1m;
+	    proxy_pass              http://127.0.0.1:8080;
+	}
+}';
+
+}
+
+function update_vhost($filename, $fields){
+	$content = file($filename);
+	foreach ($content as $line_num => $line) {	
+		foreach($fields as $field){
+			if((strcmp(trim($line), trim($field[0])) == 0)){	
+				$content[$line_num] = $field[1]."\n";
+			}				
+		}			
+	}
+	$content = implode("", $content);
+	return $content;
+}		
+
 ?>

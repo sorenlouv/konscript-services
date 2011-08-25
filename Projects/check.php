@@ -1,7 +1,6 @@
 <?php
 
 include("../inc/Check.class.php");
-include("../inc/Project.class.php"); 
 include("../inc/header.php");
 
 if(!isset($_GET["id"]) || empty($_GET["id"]) || !is_dir($web_root.$_GET["id"])){    
@@ -11,12 +10,13 @@ if(!isset($_GET["id"]) || empty($_GET["id"]) || !is_dir($web_root.$_GET["id"])){
 
                  
 $check = new Check();
-$check_prod = new Project($_GET["id"], "prod", $check);
-$check_dev = new Project($_GET["id"], "dev", $check);    
+$check->setProjectId($_GET["id"]);
 
-// General validations - only do these once (and not for twice for both dev and prod)
-$check->checkGithub();		   //check GitHub repository 	      	                       	
-$check_prod->checkVirtualHost();  //Check virtual hosts                            
+$check->checkProject("prod");
+$check->checkProject("dev");    
+$check->checkGithub();
+$check->checkVhostApache();
+$check->checkVhostNginx();
     
 ?>
 <table>
