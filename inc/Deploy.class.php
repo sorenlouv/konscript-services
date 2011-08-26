@@ -26,7 +26,7 @@ class Deploy{
 				
 		// intial validators passed
 		if ($check->getNumberOfErrors() == 0){
-			$path = $check->root.$project_name."/prod/";
+			$path = $check->web_root.$project_name."/prod/";
 			$current_version = get_latest_prod_version($path);
 		
 			// deploy to new version
