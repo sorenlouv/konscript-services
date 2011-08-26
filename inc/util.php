@@ -126,17 +126,15 @@ function downloadZip($project_id, $branch){
 		// create files
 		$command = $service_root."bash/download_project.sh $project_id $path $dbname";
 		exec("$command  2>&1", $output, $return_code);	
-		echo $command;
 
-		if($return_code != 0){
-				echo "return code: ".$return_code."<br>";
-				echo "command: ".$command."<br>";
-	                        dump($output);
-		}elseif(in_array("success", $output)){	
+		if(in_array("success", $output) && $return_code == 0){	
 			header("Location: /temp/".$project_id.".tar");
 		}else{
+			echo "return code: ".$return_code."<br>";
+			echo "command: ".$command."<br>";		
 			dump($output);
 		}
+		
 	}else{
 		echo"Path does not exist";
 	}
@@ -249,12 +247,6 @@ function Zip($source, $destination)
     return false;
 }
 
-function createFile($filename, $content){
-	$fp = fopen($filename, 'w');
-	fwrite($fp, $content);
-	fclose($fp);
-}
-
 // update nginx primary domain
 function vhost_apache_primary($primary_domain){
 	return '	 ServerName '.$primary_domain;
@@ -305,7 +297,10 @@ function vhost_nginx_dev($dev_domain){
 // create nginx vhost
 function vhost_nginx($project_id, $primary_domain, $dev_domain, $additional_domains){
 
-return '# redirect additional domains
+return '# cache path
+proxy_cache_path                /var/cache/nginx/cached/'.$project_id.' levels=2:2 keys_zone='.$project_id.':64m inactive=60m max_size=200m;
+
+# redirect additional domains
 server {
 '.vhost_nginx_additional($primary_domain, $additional_domains).'
 '.vhost_nginx_rewrite($primary_domain).'	
@@ -319,13 +314,13 @@ server {
 	##############	
 '.vhost_nginx_primary($primary_domain).'
 	root				/srv/www/'.$project_id.'/prod/current;
-	proxy_cache     	global;
+	proxy_cache     	'.$project_id.';
 
 	##############
 	# Purge cache
 	##############
 	location ~ /purge(/.*) {
-		proxy_cache_purge global $scheme$host$1$is_args$args;
+		proxy_cache_purge '.$project_id.' $scheme$host$1$is_args$args;
 	}
 
 	##############
@@ -347,7 +342,7 @@ server {
 '.vhost_nginx_dev($dev_domain).'
 	
 	location / {
-	    expires                 -10s;
+	    expires                 -1s;
 	    proxy_pass              http://127.0.0.1:8080;
 	}
 }';
@@ -363,8 +358,31 @@ function update_vhost($filename, $fields){
 			}				
 		}			
 	}
+	
+	// array to string
 	$content = implode("", $content);
+	
 	return $content;
 }		
+/***
+ * add/remove cache from nginx vhosts
+ ***/
 
+function updateCache($project_id, $action){
+	$filename = "/etc/nginx/sites-available/".$project_id;
+	$content = file($filename);
+	$needle = "proxy_cache";
+	foreach ($content as $line_num => $line) {	
+		if(preg_match('/\b'.$needle.'\b/', $line, $match, PREG_OFFSET_CAPTURE)){
+			if($action=="remove"){
+				$content[$line_num] = "#".$line;
+			}else{
+				$content[$line_num] = str_replace("#", "", $line);
+			}
+			$content = implode("", $content); // array to string
+			return file_put_contents($filename, $content);				
+		}
+	}
+	return false;
+}
 ?>

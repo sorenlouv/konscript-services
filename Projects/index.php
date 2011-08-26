@@ -47,8 +47,10 @@ while($projects = $result->fetch_assoc()){
 				<a href="http://<?php echo $projects["dev_domain"]; ?>"><?php echo $projects["dev_domain"]; ?></a>
 			</p>
 			<div class="toolbar">
-				<p class="version">Version: <?php echo $projects["current_version"]; ?></p>								
+				<p class="version">Version: <?php echo $projects["current_version"]; ?></p>
+				<?php if($projects["use_cache"]==1):?>							
 				<a href="/Projects/index.php?clearCache=1&id=<?php echo $projects["id"]; ?>">Clear cache</a>
+				<?php endif; ?>
 				<a href="/Projects/cron.php?errorStatus=1&screenshot=1&id=<?php echo $projects["id"]; ?>">Update</a>
 				<a href="/Projects/edit.php?id=<?php echo $projects["id"]; ?>">Edit</a>
 			</div>

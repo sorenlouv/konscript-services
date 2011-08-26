@@ -73,12 +73,12 @@ include("../inc/header.php");
 			// add vhost for Nginx
 			$vhost_nginx_filename = "/etc/nginx/sites-available/".$project_id;
 			$vhost_nginx_content = vhost_nginx($project_id, $_POST["primary_domain"], $_POST["dev_domain"], $_POST["additional_domains"]);		
-			createFile($vhost_nginx_filename, $vhost_nginx_content);
+			file_put_contents($vhost_nginx_filename, $vhost_nginx_content);
 
 			// add vhost for Apache
 			$vhost_apache_filename = "/etc/apache2/sites-available/".$project_id;
 			$vhost_apache_content = vhost_apache($project_id, $_POST["primary_domain"], $_POST["dev_domain"]);
-			createFile($vhost_apache_filename, $vhost_apache_content);
+			file_put_contents($vhost_apache_filename, $vhost_apache_content);
                         
             header("Location: /Projects/check.php?id=".$project_id);            
         }

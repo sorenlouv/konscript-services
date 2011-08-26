@@ -10,8 +10,8 @@ $project_id = $_GET["id"];
 $project = $connection->prep_stmt("SELECT * FROM projects WHERE id=?"); //prepare query statement
 $project->bind_param("s", $project_id);			//bind parameters
 $project->execute() or die("Error: ".$project->error); //Executing the statement
-$project->bind_result($id, $title, $primary_domain, $additional_domains, $dev_domain, $current_version, $screenshot, $exclude, $errors); //bind result variables
-$project->fetch(); // fetch values
+$project->bind_result($id, $title, $primary_domain, $additional_domains, $dev_domain, $use_cache, $current_version, $screenshot, $exclude, $errors);
+$project->fetch();
 $project->close();
 
 if($_POST){
@@ -46,7 +46,7 @@ if($_POST){
 
 	$vhost_nginx_filename = "/etc/nginx/sites-available/".$project_id;			
 	$vhost_nginx_content = update_vhost($vhost_nginx_filename, $nginx);		
-	createFile($vhost_nginx_filename, $vhost_nginx_content);
+	file_put_contents($vhost_nginx_filename, $vhost_nginx_content);
 	
 	// update vhost for Apache	
 	$apache = array();		
@@ -54,14 +54,26 @@ if($_POST){
 	$apache[] = array(vhost_apache_dev($dev_domain), vhost_apache_dev($_POST["dev_domain"])); //Dev
 
 	$vhost_apache_filename = "/etc/apache2/sites-available/".$project_id;			
-	$vhost_apache_content = update_vhost($vhost_apache_filename, $apache);		
-	createFile($vhost_apache_filename, $vhost_apache_content);	
+	$vhost_apache_content = update_vhost($vhost_apache_filename, $apache);		 
+	file_put_contents($vhost_apache_filename, $vhost_apache_content);	
+	
+	// update cache in vhost
+	if($use_cache != $_POST["use_cache"]){		
+		$res = $_POST["use_cache"]==0 ? updateCache($project_id, "remove") : $res = updateCache($project_id, "add");
+		if($res === false){
+			//something went wrong!
+		}
+	}
+	
 
 	// update db           
-    $update_project = $connection->prep_stmt("UPDATE projects SET title=?, primary_domain=?, additional_domains=?, dev_domain=?, current_version=?, screenshot=? WHERE id=?");          
-    $update_project->bind_param("sssssis", $_POST["title"], $_POST["primary_domain"], $_POST["additional_domains"], $_POST["dev_domain"], $_POST["current_version"], $_POST["screenshot"], $_POST["id"]);        
-    $update_project->execute() or die("Error: ".$update_project->error);                    
-	//header("Location: ".$_SERVER['PHP_SELF']."?".$_SERVER['QUERY_STRING']);
+	$update_project = $connection->prep_stmt("UPDATE projects SET title=?, primary_domain=?, additional_domains=?, dev_domain=?, use_cache=?, current_version=?, screenshot=? WHERE id=?");          
+	$update_project->bind_param("sssssiis", 
+		$_POST["title"], $_POST["primary_domain"], $_POST["additional_domains"], $_POST["dev_domain"], $_POST["use_cache"], $_POST["current_version"], $_POST["screenshot"], $_POST["id"]);        
+	$update_project->execute() or die("Error: ".$update_project->error);       
+
+	// refresh page             
+	header("Location: ".$_SERVER['PHP_SELF']."?id=".$_GET['id']."&p=".time());
 }
 
 ?>
@@ -86,9 +98,23 @@ if($_POST){
 		</div>
 
 		<div class="field clearfix">
-			<label for="title">Development domain:</label>					
+			<label for="dev_domain">Development domain:</label>					
 			<input type="text" value="<?php echo $dev_domain; ?>" name="dev_domain" id="dev_domain">
 		</div>
+
+		<div class="field clearfix">
+			<label for="use_cache">Use cache:</label>	
+			<select name="use_cache" id="use_cache">	
+				<?php
+				$cache_values = array(0, 1);
+				foreach($cache_values as $cache_value):
+					$selected = $use_cache == $cache_value ? " selected" : "";
+					?>
+					<option <?php echo $selected; ?>><?php echo $cache_value; ?></option>
+				<?php endforeach; ?>	
+			</select>		
+		</div>		
+		
 		
 		<div class="field clearfix">
 			<label for="current_version">Version:</label>									
@@ -105,6 +131,3 @@ if($_POST){
 		<input type="submit">
 	</form>
 </div>
-
-
-
