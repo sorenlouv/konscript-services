@@ -74,6 +74,7 @@ if($_POST){
 
 	// refresh page             
 	header("Location: ".$_SERVER['PHP_SELF']."?id=".$_GET['id']."&p=".time());
+	//exit();
 }
 
 ?>
