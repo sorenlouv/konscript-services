@@ -4,13 +4,13 @@ include("../inc/header.php");
 
     // save project
     if($_POST){
-        
-        $project_id = $_POST["project_id"];
-        $full_path_to_project = $web_root.$project_id;
-        
+    
         // init check
 		$check = new Check();
-        $check->setProjectId($project_id);
+        $check->setProjectId($_POST["project_id"]);    
+        
+		$_POST["dev_domain"] = $check->getDefaultDevDomain();			
+        $full_path_to_project = $web_root.$_POST["project_id"];     
 
         // Validations
         $check->checkFolderCannotExist($full_path_to_project); // folder cannot exist
@@ -30,7 +30,7 @@ include("../inc/header.php");
 				$repo->run('remote add konscript '. $check->getPathToGitRemote());
 				
 				// wordpress: download and extract latest version
-				wp_get_latest($project_id, isset($_POST["wordpress"]));            
+				wp_get_latest($_POST["project_id"], isset($_POST["wordpress"]));            
 				
 				// create prod: clone dev to prod
 				$full_path_to_prod = $full_path_to_project."/prod";
@@ -48,19 +48,19 @@ include("../inc/header.php");
 				$connection->connect();
 	
 				// create prod database
-				$connection->query("CREATE DATABASE IF NOT EXISTS `".$project_id."-prod`");
+				$connection->query("CREATE DATABASE IF NOT EXISTS `".$_POST["project_id"]."-prod`");
 			
 				// create dev database
-				$connection->query("CREATE DATABASE IF NOT EXISTS `".$project_id."-dev`");
+				$connection->query("CREATE DATABASE IF NOT EXISTS `".$_POST["project_id"]."-dev`");
 						 						
 				// add vhost for Nginx
-				$vhost_nginx_filename = "/etc/nginx/sites-available/".$project_id;
-				$vhost_nginx_content = vhost_nginx($project_id, $_POST["primary_domain"], $_POST["dev_domain"], $_POST["additional_domains"]);		
+				$vhost_nginx_filename = "/etc/nginx/sites-available/".$_POST["project_id"];
+				$vhost_nginx_content = vhost_nginx($_POST["project_id"], $_POST["primary_domain"], $_POST["dev_domain"], $_POST["additional_domains"]);		
 				file_put_contents($vhost_nginx_filename, $vhost_nginx_content);
 
 				// add vhost for Apache
-				$vhost_apache_filename = "/etc/apache2/sites-available/".$project_id;
-				$vhost_apache_content = vhost_apache($project_id, $_POST["primary_domain"], $_POST["dev_domain"]);
+				$vhost_apache_filename = "/etc/apache2/sites-available/".$_POST["project_id"];
+				$vhost_apache_content = vhost_apache($_POST["project_id"], $_POST["primary_domain"], $_POST["dev_domain"]);
 				file_put_contents($vhost_apache_filename, $vhost_apache_content);
         }
         
@@ -73,17 +73,17 @@ include("../inc/header.php");
 			$_POST["additional_domains"] = str_replace(",", " ", $_POST["additional_domains"]);
 			$_POST["additional_domains"] = str_replace("  ", " ", $_POST["additional_domains"]);					
 			$_POST["primary_domain"] = str_replace($strip, "", $_POST["primary_domain"]);	
-			$_POST["dev_domain"] = $check->getDefaultDevDomain();			
+			$_POST["use_cache"] = 0;
 			$_POST["screenshot"] = 1;
 			$_POST["current_version"] = 1;			
  						
 			// prepare and execute
-			$update_project = $connection->prep_stmt("INSERT INTO projects (id, title, primary_domain, additional_domains, dev_domain, screenshot, current_version) VALUES (?, ?, ?, ?, ?, ?, ?)");     
-			$update_project->bind_param("sssssii", 
-			$project_id, $_POST["title"], $_POST["primary_domain"], $_POST["additional_domains"], $_POST["dev_domain"], $_POST["screenshot"], $_POST["current_version"]);        
-			$update_project->execute() or die("Error: ".$update_project->error);     		
+			$create_project = $connection->prep_stmt("INSERT INTO projects (id, title, primary_domain, additional_domains, dev_domain, screenshot, current_version, use_cache) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");     
+			$create_project->bind_param("sssssiii", 
+			$_POST["project_id"], $_POST["title"], $_POST["primary_domain"], $_POST["additional_domains"], $_POST["dev_domain"], $_POST["screenshot"], $_POST["current_version"], $_POST["use_cache"]);        
+			$create_project->execute() or die("Error: ".$create_project->error);     		
 		
-			header("Location: /Projects/check.php?id=".$project_id);                  
+			header("Location: /Projects/check.php?id=".$_POST["project_id"]);                  
 		}else{
 			echo $check->outputResult();
 		}

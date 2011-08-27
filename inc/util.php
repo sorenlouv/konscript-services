@@ -1,7 +1,5 @@
 <?php
 
-
-
 function getValidHostname($hostnames, $i=0){
 	$ip = gethostbyname($hostnames[$i]);
 	if ( preg_match('/^\d+/', $ip) != 0 ) {

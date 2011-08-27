@@ -15,23 +15,13 @@ class Check {
     
     // constructor - set root
     function check(){
-		set_error_handler(array($this, "custom_error_handler"));
+		set_error_handler(array($this, "custom_error_handler"), E_WARNING);
     	global $web_root;
     	$this->web_root = $web_root;
     }
     
 	function custom_error_handler($errno, $errstr) {
-		switch ($errno) {
-			case E_NOTICE:
-				$this->addCustomError($errstr);			
-				break;
-			case E_WARNING:
-				$this->addCustomError($errstr);			
-				break;	
-			default:
-				echo "Unknown error type: [$errno] $errstr<br />\n";
-				break;	
-		}		
+			$this->addCustomError($errstr);			
 	}    
         
     function getChecks(){
