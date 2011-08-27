@@ -1,4 +1,8 @@
 <?php
+
+$web_root = "/srv/www/";
+$service_root = "/srv/www/path/to/prosty/";
+
 class DbConn {
 	private $_host = "localhost";
     private $_user = "user";

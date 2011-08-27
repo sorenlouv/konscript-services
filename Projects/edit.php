@@ -1,6 +1,5 @@
 <?php
-include("../inc/conn.inc.php");
-include("../inc/util.php");
+include("../inc/Check.class.php");
 include("../inc/header.php");
 
 $connection = New DbConn();
@@ -15,6 +14,7 @@ $project->fetch();
 $project->close();
 
 if($_POST){
+	$check = new Check();
 
 	// update screenshot - if one of the domains was changed
 	// "1" is a flag, that indicates the screenshot must be updated
@@ -43,38 +43,38 @@ if($_POST){
 	$nginx[] = array(vhost_nginx_rewrite($primary_domain), vhost_nginx_rewrite($_POST["primary_domain"])	);	// rewrite
 	$nginx[] = array(vhost_nginx_primary($primary_domain), vhost_nginx_primary($_POST["primary_domain"])	); // primary
 	$nginx[] = array(vhost_nginx_dev($dev_domain), vhost_nginx_dev($_POST["dev_domain"])); // dev
+	$nginx[] = array(vhost_nginx_cache($project_id, $use_cache), vhost_nginx_cache($project_id, $_POST["use_cache"])); // dev	
 
 	$vhost_nginx_filename = "/etc/nginx/sites-available/".$project_id;			
-	$vhost_nginx_content = update_vhost($vhost_nginx_filename, $nginx);		
+	$vhost_nginx_content = $check->update_vhost($vhost_nginx_filename, $nginx);		
+	$check->writeToFile($vhost_nginx_filename, $vhost_nginx_content);
+	
 	file_put_contents($vhost_nginx_filename, $vhost_nginx_content);
 	
-	// update vhost for Apache	
+	// update vhost for Apache		
 	$apache = array();		
 	$apache[] = array(vhost_apache_primary($primary_domain), vhost_apache_primary($_POST["primary_domain"])	); // primary
 	$apache[] = array(vhost_apache_dev($dev_domain), vhost_apache_dev($_POST["dev_domain"])); //Dev
 
 	$vhost_apache_filename = "/etc/apache2/sites-available/".$project_id;			
-	$vhost_apache_content = update_vhost($vhost_apache_filename, $apache);		 
-	file_put_contents($vhost_apache_filename, $vhost_apache_content);	
+	$vhost_apache_content = $check->update_vhost($vhost_apache_filename, $apache);		 
+	$check->writeToFile($vhost_apache_filename, $vhost_apache_content);
+ 
+	// on success
+	if ($check->getNumberOfErrors() == 0){        
 	
-	// update cache in vhost
-	if($use_cache != $_POST["use_cache"]){		
-		$res = $_POST["use_cache"]==0 ? updateCache($project_id, "remove") : $res = updateCache($project_id, "add");
-		if($res === false){
-			//something went wrong!
-		}
+		// update db           
+		$update_project = $connection->prep_stmt("UPDATE projects SET title=?, primary_domain=?, additional_domains=?, dev_domain=?, use_cache=?, current_version=?, screenshot=? WHERE id=?");          
+		$update_project->bind_param("sssssiis", 
+			$_POST["title"], $_POST["primary_domain"], $_POST["additional_domains"], $_POST["dev_domain"], $_POST["use_cache"], $_POST["current_version"], $_POST["screenshot"], $_POST["id"]);        
+		$update_project->execute() or die("Error: ".$update_project->error);      	
+	
+		// refresh page on success       	
+		header("Location: ".$_SERVER['PHP_SELF']."?id=".$_GET['id']."&p=".time());      
+	}else{
+		echo $check->outputResult();
 	}
-	
 
-	// update db           
-	$update_project = $connection->prep_stmt("UPDATE projects SET title=?, primary_domain=?, additional_domains=?, dev_domain=?, use_cache=?, current_version=?, screenshot=? WHERE id=?");          
-	$update_project->bind_param("sssssiis", 
-		$_POST["title"], $_POST["primary_domain"], $_POST["additional_domains"], $_POST["dev_domain"], $_POST["use_cache"], $_POST["current_version"], $_POST["screenshot"], $_POST["id"]);        
-	$update_project->execute() or die("Error: ".$update_project->error);       
-
-	// refresh page             
-	header("Location: ".$_SERVER['PHP_SELF']."?id=".$_GET['id']."&p=".time());
-	//exit();
 }
 
 ?>

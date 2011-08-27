@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # set variables
-projectName=${1}
-pathDev="/srv/www/${projectName}/dev/"
+project_id=${1}
+pathDev="/srv/www/${project_id}/dev/"
 pathTemp="/srv/www/services/prosty/temp/"
 pathWPDefaults="/srv/www/services/wp-defaults/"
 wpFile="${pathTemp}latest.tar.gz"

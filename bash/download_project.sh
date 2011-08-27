@@ -10,6 +10,7 @@ project_id="${1}"
 folderToZip=$(basename ${2})
 cwdToFolder=$(dirname ${2})
 dbname=${3}
+error=0
 
 pathTemp="/srv/www/services/prosty/temp/"
 tarFile="${pathTemp}${project_id}.tar"
@@ -22,15 +23,24 @@ rm ${tarFile}
 dump=$(mysqldump -u $SQLUser -p$SQLPass $dbname)
 
 # if successfully opened database
-if [ $? == 0 ]; then {
-
+if [ $? != 0 ]; then {
+	error=1	
+} else {
 	# write dump to file
-	echo $dump > $sqlFile
+	echo $dump > $sqlFile		
+} fi
 	
-	# create tar archive with web files and mysqldump
-	tar --create --file=${tarFile} -C ${cwdToFolder} ${folderToZip} -C ${pathTemp} export.sql
+# create tar archive with web files and mysqldump
+tar --create --file=${tarFile} -C ${cwdToFolder} ${folderToZip} -C ${pathTemp} export.sql
+
+if [ $? != 0 ]; then {
+	error=1
+} fi
+	
+if [ $error == 0 ]; then {
 	echo "success"
 } fi
+
 
 
 

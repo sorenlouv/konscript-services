@@ -1,5 +1,7 @@
 <?php
 
+
+
 function getValidHostname($hostnames, $i=0){
 	$ip = gethostbyname($hostnames[$i]);
 	if ( preg_match('/^\d+/', $ip) != 0 ) {
@@ -109,11 +111,9 @@ function downloadZip($project_id, $branch){
 	global $web_root;
 	
 	// download production version
-	if($branch=="prod"){
-		$path = $project_id.'/prod/current';
-		
+	if($branch=="prod"){	
 		// get target from symlink
-		$path = readlink($web_root.$path);		
+		$path = readlink($web_root.$project_id.'/prod/current');		
 		$dbname = $project_id.'-prod';
 	
 	// download development version		
@@ -126,9 +126,10 @@ function downloadZip($project_id, $branch){
 		// create files
 		$command = $service_root."bash/download_project.sh $project_id $path $dbname";
 		exec("$command  2>&1", $output, $return_code);	
+		$pathToTar = "/temp/".$project_id.".tar";
 
-		if(in_array("success", $output) && $return_code == 0){	
-			header("Location: /temp/".$project_id.".tar");
+		if(in_array("success", $output) && $return_code == 0 && is_file($service_root.$pathToTar)){	
+			header("Location: $pathToTar");
 		}else{
 			echo "return code: ".$return_code."<br>";
 			echo "command: ".$command."<br>";		
@@ -294,8 +295,18 @@ function vhost_nginx_dev($dev_domain){
 	return '	server_name		 '.$dev_domain.';';
 }
 
+// update nginx cache setting
+function vhost_nginx_cache($project_id, $use_cache){
+	if($use_cache == 1){
+		return '	proxy_cache     	'.$project_id.';';
+	}else{
+		return '	#proxy_cache     	'.$project_id.';';
+	}
+}
+
 // create nginx vhost
 function vhost_nginx($project_id, $primary_domain, $dev_domain, $additional_domains){
+$use_cache = 0;
 
 return '# cache path
 proxy_cache_path                /var/cache/nginx/cached/'.$project_id.' levels=2:2 keys_zone='.$project_id.':64m inactive=60m max_size=200m;
@@ -314,7 +325,7 @@ server {
 	##############	
 '.vhost_nginx_primary($primary_domain).'
 	root				/srv/www/'.$project_id.'/prod/current;
-	proxy_cache     	'.$project_id.';
+'.vhost_nginx_cache($project_id, $use_cache).'	
 
 	##############
 	# Purge cache
@@ -347,42 +358,5 @@ server {
 	}
 }';
 
-}
-
-function update_vhost($filename, $fields){
-	$content = file($filename);
-	foreach ($content as $line_num => $line) {	
-		foreach($fields as $field){
-			if((strcmp(trim($line), trim($field[0])) == 0)){	
-				$content[$line_num] = $field[1]."\n";
-			}				
-		}			
-	}
-	
-	// array to string
-	$content = implode("", $content);
-	
-	return $content;
 }		
-/***
- * add/remove cache from nginx vhosts
- ***/
-
-function updateCache($project_id, $action){
-	$filename = "/etc/nginx/sites-available/".$project_id;
-	$content = file($filename);
-	$needle = "proxy_cache";
-	foreach ($content as $line_num => $line) {	
-		if(preg_match('/\b'.$needle.'\b/', $line, $match, PREG_OFFSET_CAPTURE)){
-			if($action=="remove"){
-				$content[$line_num] = "#".$line;
-			}else{
-				$content[$line_num] = str_replace("#", "", $line);
-			}
-			$content = implode("", $content); // array to string
-			return file_put_contents($filename, $content);				
-		}
-	}
-	return false;
-}
 ?>

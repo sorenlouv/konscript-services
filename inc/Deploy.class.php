@@ -8,13 +8,13 @@ include("inc/Check.class.php");
 class Deploy{		
 	var $check;
 
-    function Deploy($project_name, $deploy_type){        
+    function Deploy($project_id, $deploy_type){        
     	// initialize check
     	$check = new Check();
     	        
 		// set variables  
         $this->check = $check;
-	    $check->setProjectId($project_name);    	        
+	    $check->setProjectId($project_id);    	        
         $check->setStageFolder("prod");    
             
 	    // validators                                                    
@@ -26,7 +26,7 @@ class Deploy{
 				
 		// intial validators passed
 		if ($check->getNumberOfErrors() == 0){
-			$path = $check->web_root.$project_name."/prod/";
+			$path = $check->web_root.$project_id."/prod/";
 			$current_version = get_latest_prod_version($path);
 		
 			// deploy to new version
@@ -39,9 +39,16 @@ class Deploy{
 					recursive_copy($path.$current_version, $path.$next_version);            
 					
 					// change current symlink
-					$pathToCurrent = $path."current";
-					unlink($pathToCurrent);
-					symlink($path.$next_version, $pathToCurrent);  					
+					$pathToSymlink = $path."current";
+					unlink($pathToSymlink);
+					symlink($path.$next_version, $pathToSymlink);  					
+					
+					//update version in db
+					$connection = New DbConn();
+					$connection->connect();						
+					$update_project = $connection->prep_stmt("UPDATE projects SET current_version=? WHERE id=?");          
+					$update_project->bind_param("is",$next_version, $project_id);        
+					$update_project->execute() or die("Error: ".$update_project->error);   					
 				}
 			
 				$version = $next_version;

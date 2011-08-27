@@ -15,9 +15,24 @@ class Check {
     
     // constructor - set root
     function check(){
+		set_error_handler(array($this, "custom_error_handler"));
     	global $web_root;
     	$this->web_root = $web_root;
     }
+    
+	function custom_error_handler($errno, $errstr) {
+		switch ($errno) {
+			case E_NOTICE:
+				$this->addCustomError($errstr);			
+				break;
+			case E_WARNING:
+				$this->addCustomError($errstr);			
+				break;	
+			default:
+				echo "Unknown error type: [$errno] $errstr<br />\n";
+				break;	
+		}		
+	}    
         
     function getChecks(){
         return $this->checks;
@@ -55,7 +70,7 @@ class Check {
     function getNumberOfErrors(){        
         return $this->number_of_errors;
     }    
-
+    
     function getPathToStageFolder(){
         if($this->stageFolder=="dev"){
             return $this->web_root.$this->project_id."/dev";
@@ -78,14 +93,24 @@ class Check {
                             
    function addCheck($status, $msg, $calling_function){        
         $msg["name"] = $calling_function;
+        
+        // an error occured
         if($status>0){
             $this->number_of_errors++;
             $msg["status"] = 0;
+            
+        // no errors occured
         }else{
             $msg["status"] = 1;
         }
         $this->checks[] = $msg;  
    }           
+   
+	function addCustomError($custom_error_msg){
+		$status = 1; //error
+		$msg["error"] = $custom_error_msg;
+		$this->addCheck($status, $msg, __function__);                  
+	}   
    
 	/**
 	 * purge entire nginx cache for the current project
@@ -97,14 +122,9 @@ class Check {
 
 		if($chdir && getcwd()==$path_to_nginx_cache && trim(shell_exec("pwd"))==$path_to_nginx_cache){
 			//exec("find -type f -exec rm -f {} \;", $output, $status);
-			echo "CACHE CLEAR: $path_to_nginx_cache (temp. disabled due to testing)";			
 			$status = 0;
 		}else{
-			echo $path_to_nginx_cache;
 			$status = 1;		
-			var_dump($chdir);
-			var_dump(getcwd()==$path_to_nginx_cache);
-			var_dump(trim(shell_exec("pwd"))==$path_to_nginx_cache);
 		}
 
 		// build error message
@@ -217,18 +237,77 @@ class Check {
 	/**
 	 * Check individual project for errors
 	 ****************/   
-   function checkProject($stageFolder){   
-    	//set variables
+	function checkProject($stageFolder){   
+		//set variables
 
-        $this->setStageFolder($stageFolder);
-        		    
-	    //validators	            	       	    
-        $this->checkGitRemote();  
-	    $this->checkFolderMustExist();
-	    $this->checkFolderMustExist("/.git");
-	    $this->checkFolderWritable();
-	    $this->checkFolderWritable("/.git");      
-   }
-    
+		$this->setStageFolder($stageFolder);
+				
+		//validators	            	       	    
+		$this->checkGitRemote();  
+		$this->checkFolderMustExist();
+		$this->checkFolderMustExist("/.git");
+		$this->checkFolderWritable();
+		$this->checkFolderWritable("/.git");      
+	}
+	
+	
+	function writeToFile($filename, $content){
+		$res = false;
+		if ($this->getNumberOfErrors() == 0){        
+			$res = file_put_contents($filename, $content);	
+		}
+		
+		if($res === false){
+			$status = 1;
+			$msg["error"] = "$filename could not be updated";
+	        $this->addCheck($status, $msg, __function__);
+		}
+	}
+   
+   /**
+    * update virtual host for Apache/Nginx and check that all changes are reflected in the physical files
+    *********/
+	function update_vhost($filename, $fields){
+		$content = file($filename);
+
+		// remove unchanged
+		foreach($fields as $field_id=>$field){
+			if($field[0] == $field[1]){
+				unset($fields[$field_id]);
+			}
+		}
+
+		// read file per line
+		foreach ($content as $line_num => $line) {	
+			foreach($fields as $field_id=>$field){
+	
+				// trim whitespace and compare lines. If they are identical, the line will be replace by the new 
+				if((strcmp(trim($line), trim($field[0])) == 0)){	
+					$content[$line_num] = $field[1]."\n";
+					$fields[$field_id][2] = true;
+				}				
+			}			
+		}		
+
+		// make sure that all changed field were updated
+		$errors = array();
+		foreach($fields as $field_id=>$field){
+			if(!isset($field[2])){
+				$errors[] = $field[0];
+			}
+		}
+
+		if(count($errors)>0){
+			$status = 1; //error
+			$msg["error"] = "Following string missing in vhost: ".implode("", $errors);
+	        $this->addCheck($status, $msg, __function__);
+        }
+
+		// array to string
+		$content = implode("", $content);
+
+		return $content;
+	}   
+
 }       
 ?>
