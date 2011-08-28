@@ -105,16 +105,17 @@ class Check {
 	/**
 	 * purge entire nginx cache for the current project
 	 ***/	  
-	function clearCache($project_id = false){    	
-		$project_id = !$project_id ? $this->project_id : $project_id;
-		$path_to_nginx_cache ="/var/cache/nginx/cached/".$project_id;    			
-		$chdir = is_dir($path_to_nginx_cache) ? chdir($path_to_nginx_cache) : false;
+	function clearCache(){    	
+		$path_to_nginx_cache ="/var/cache/nginx/cached/".$this->project_id;   		
+		$status = 1;		
+		
+		if(is_dir($path_to_nginx_cache)){
+			$chdir = is_dir($path_to_nginx_cache) ? chdir($path_to_nginx_cache) : false;
 
-		if($chdir && getcwd()==$path_to_nginx_cache && trim(shell_exec("pwd"))==$path_to_nginx_cache){
-			//exec("find -type f -exec rm -f {} \;", $output, $status);
-			$status = 0;
-		}else{
-			$status = 1;		
+			if($chdir && getcwd()==$path_to_nginx_cache && trim(shell_exec("pwd"))==$path_to_nginx_cache){
+				//exec("find -type f -exec rm -f {} \;", $output, $status);
+				$status = 0;
+			}
 		}
 
 		// build error message

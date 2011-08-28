@@ -58,9 +58,8 @@ class Deploy{
 				$version = $current_version;
 			}
 			
-			// clear cache for current project and for global
+			// clear cache for current project
 			$check->clearCache();
-			$check->clearCache("global");			
 			
 			// final validators passed
 			if($check->getNumberOfErrors() == 0){						
