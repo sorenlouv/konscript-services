@@ -58,7 +58,7 @@ include("../inc/header.php");
 				
 				//add symlink for nginx
 				$nginx_symlink = "/etc/nginx/sites-enabled/".$_POST["project_id"];
-				@unlink($nginx_symlink);
+				if(is_link($nginx_symlink){	unlink($nginx_symlink);		}
 				symlink($vhost_nginx_filename, $nginx_symlink);
 
 				// add vhost for Apache
@@ -68,7 +68,7 @@ include("../inc/header.php");
 				
 				//add symlink for Apache
 				$apache_symlink = "/etc/apache2/sites-enabled/".$_POST["project_id"];
-				@unlink($apache_symlink);
+				if(is_link($apache_symlink){ unlink($apache_symlink); }
 				symlink($vhost_apache_filename, $apache_symlink);			
         }
         
