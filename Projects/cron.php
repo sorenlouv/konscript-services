@@ -15,7 +15,7 @@ if(isset($_GET["errorStatus"])){
 	
 		// get status	
 		$check = new Check();
-		$check->setProjectId($_GET["id"]);
+		$check->setProjectId($project["id"]);
 
 		$check->checkProject("prod");
 		$check->checkProject("dev");    
