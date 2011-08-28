@@ -23,6 +23,7 @@ class Deploy{
         $check->checkFolderMustExist("/.git");        
 		$check->checkFolderWritable();       
 		$check->checkFolderWritable("/.git");		
+		$check->checkRestart();
 				
 		// intial validators passed
 		if ($check->getNumberOfErrors() == 0){

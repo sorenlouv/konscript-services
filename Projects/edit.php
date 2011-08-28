@@ -6,7 +6,7 @@ $connection = New DbConn();
 $connection->connect();	
 
 $project_id = $_GET["id"];
-$project = $connection->prep_stmt("SELECT * FROM projects WHERE id=?"); //prepare query statement
+$project = $connection->prep_stmt("SELECT id, title, primary_domain, additional_domains, dev_domain, use_cache, current_version, screenshot, exclude, errors FROM projects WHERE id=?"); //prepare query statement
 $project->bind_param("s", $project_id);			//bind parameters
 $project->execute() or die("Error: ".$project->error); //Executing the statement
 $project->bind_result($id, $title, $primary_domain, $additional_domains, $dev_domain, $use_cache, $current_version, $screenshot, $exclude, $errors);
@@ -64,13 +64,13 @@ if($_POST){
 	if ($check->getNumberOfErrors() == 0){        
 	
 		// update db           
-		$update_project = $connection->prep_stmt("UPDATE projects SET title=?, primary_domain=?, additional_domains=?, dev_domain=?, use_cache=?, current_version=?, screenshot=? WHERE id=?");          
+		$update_project = $connection->prep_stmt("UPDATE projects SET title=?, primary_domain=?, additional_domains=?, dev_domain=?, use_cache=?, current_version=?, screenshot=?, modified='".time()."' WHERE id=?");          
 		$update_project->bind_param("sssssiis", 
 			$_POST["title"], $_POST["primary_domain"], $_POST["additional_domains"], $_POST["dev_domain"], $_POST["use_cache"], $_POST["current_version"], $_POST["screenshot"], $_POST["id"]);        
 		$update_project->execute() or die("Error: ".$update_project->error);      	
 	
-		// refresh page on success       	
-		header("Location: ".$_SERVER['PHP_SELF']."?id=".$_GET['id']."&p=".time());      
+		// check project for errors
+		header("Location: /Projects/check.php?id=".$_GET["id"]);                  
 	}else{
 		echo $check->outputResult();
 	}

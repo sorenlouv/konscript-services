@@ -16,12 +16,13 @@ class Check {
     // constructor - set root
     function check(){
 		set_error_handler(array($this, "custom_error_handler"), E_WARNING);
-    	global $web_root;
+    	global $web_root, $service_root;
     	$this->web_root = $web_root;
+		$this->service_root = $service_root;
     }
     
-	function custom_error_handler($errno, $errstr) {
-			$this->addCustomError($errstr);			
+	function custom_error_handler($errno, $errstr, $errfile, $errline) {
+			$this->addCustomError($errstr, $errfile, $errline);			
 	}    
         
     function getChecks(){
@@ -34,7 +35,7 @@ class Check {
 			$html = '<div class="flash-message error">';
 			foreach($this->checks as $check){			
 				if($check["status"] == 0){
-					$html .= "Error: " . $check["error"] . " [" .$check["name"]."]<br/>";
+					$html .= "Error: " . $check["error"] . "<br/>";
 				}elseif(isset($check["success"]) && $verbose == true){
 					$html .= "Success: " . $check["success"] . " [" .$check["name"]."]<br/>";
 				}
@@ -96,9 +97,10 @@ class Check {
         $this->checks[] = $msg;  
    }           
    
-	function addCustomError($custom_error_msg){
+	function addCustomError($error_msg, $file, $line){
 		$status = 1; //error
-		$msg["error"] = $custom_error_msg;
+		$file = str_replace($this->service_root,"", $file);
+		$msg["error"] = "$error_msg in $file:$line";
 		$this->addCheck($status, $msg, __function__);                  
 	}   
    
@@ -208,9 +210,9 @@ class Check {
      *************************************************/
     function checkVhostApache(){
         $file = "/etc/apache2/sites-available/".$this->project_id;
-        $msg = array("success"=>"Apache virtual host was found", "error"=>" Apache virtual host is missing:");
+        $msg = array("success"=>"Apache virtual host was found", "error"=>" Apache virtual host is missing: $file");
         $status = file_exists($file) ? 0 : 1;
-        $msg["tip"] = "Create virtual host: /etc/apache2/sites-available/".$this->project_id;        
+        $msg["tip"] = "Create virtual host: $file";        
         $this->addCheck($status, $msg, __function__);
     }        
 
@@ -219,9 +221,9 @@ class Check {
      *************************************************/
     function checkVhostNginx(){
         $file = "/etc/nginx/sites-available/".$this->project_id;
-        $msg = array("success"=>"Nginx virtual host was found", "error"=>"Nginx virtual host is missing:");
+        $msg = array("success"=>"Nginx virtual host was found", "error"=>"Nginx virtual host is missing: $file");
         $status = file_exists($file) ? 0 : 1;
-        $msg["tip"] = "Create virtual host: /etc/nginx/sites-available/".$this->project_id;        
+        $msg["tip"] = "Create virtual host: $file";        
         $this->addCheck($status, $msg, __function__);
     }        
 
@@ -240,6 +242,48 @@ class Check {
 		$this->checkFolderWritable();
 		$this->checkFolderWritable("/.git");      
 	}
+	
+	/**
+	 * field not empty
+	 ****************/   
+	function notEmpty($field){   		
+	    $status = empty($field) ? 1 : 0;
+	    $msg["error"] = "Fields marks with stars cannot be empty!";
+	    $this->addCheck($status, $msg, __function__);	
+	}	
+	
+    /**
+     * check that Apache and Nginx have been restarted since created/modified
+     *************************************************/
+    function checkRestart(){
+		$status = 0;
+		$error_msg = "";		
+        $file = $this->service_root."/bash/uptime.sh";
+        $uptime = json_decode(shell_exec($file), true);
+                        
+		// mysql connection
+		$connection = New DbConn();
+		$connection->connect();
+		$project = $connection->query("SELECT modified FROM projects WHERE id='".$this->project_id."'");
+		$modified = $project->fetch_object()->modified;
+		
+		// does apache needs a restart?
+		if($modified > $uptime["apache"]){
+			$error_msg = " Apache";
+			$status = 1;
+		}
+		
+		// does nginx needs a restart?
+		if($modified > $uptime["nginx"]){
+			$error_msg .= $error_msg =="" ? " Nginx" : " and Nginx" ;
+			$status = 1;
+		}		
+        
+        $msg = array("success"=>"No restart required", "error"=>"A restart for $error_msg is required");
+        $msg["tip"] = "<b>test conf files:</b> sudo nginx -t && sudo apache2ctl -t <br/> <b>Restart:</b> sudo service nginx restart && sudo service apache2 restart 
+";        
+        $this->addCheck($status, $msg, __function__);
+    }  	
 	
 	
 	function writeToFile($filename, $content){

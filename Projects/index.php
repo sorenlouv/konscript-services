@@ -14,7 +14,7 @@ if(isset($_GET["id"]) && isset($_GET["branch"])){
  */
 if(isset($_GET["id"]) && isset($_GET["clearCache"])){
 	$check = new Check();
-	$check->setProjectId($_GET["id"])
+	$check->setProjectId($_GET["id"]);
 	$check->clearCache();
 	
 	if($check->getNumberOfErrors()>0){

@@ -17,6 +17,16 @@ $check->checkProject("dev");
 $check->checkGithub();
 $check->checkVhostApache();
 $check->checkVhostNginx();
+$check->checkRestart();
+
+// update status
+$connection = New DbConn();
+$connection->connect();
+
+$number_of_errors = $check->getNumberOfErrors();	
+$updateProject = $connection->prep_stmt("UPDATE projects SET errors=? WHERE id=?");  	   
+$updateProject->bind_param("is", $number_of_errors, $_GET["id"]);    	
+$updateProject->execute() or die("Error: ".$result->error);                        
     
 ?>
 <table>

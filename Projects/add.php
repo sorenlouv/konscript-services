@@ -12,17 +12,20 @@ include("../inc/header.php");
 		$_POST["dev_domain"] = $check->getDefaultDevDomain();			
         $full_path_to_project = $web_root.$_POST["project_id"];     
 
+		// mysql connection
+		$connection = New DbConn();
+		$connection->connect();
+
         // Validations
         $check->checkFolderCannotExist($full_path_to_project); // folder cannot exist
-		// $check->checkGithub(); // github project must exist
-	  
+		$check->checkGithub(); // github project must exist
+		$check->notEmpty($_POST["primary_domain"]);
+		$check->notEmpty($_POST["project_id"]);		
+
 		if ($check->getNumberOfErrors() == 0){        
-
-
 				// create project root - 02770: leading zero is required; 2 is the sticky bit (set guid); 770 is rwx,rwx,---
-
 				mkdir($full_path_to_project, 02770);
-				
+
 				// create dev
 				$full_path_to_dev = $full_path_to_project."/dev";
 				mkdir($full_path_to_dev, 02770);
@@ -42,11 +45,6 @@ include("../inc/header.php");
 				$link = $full_path_to_prod."/current";
 				symlink($target, $link);			
 
-				
-				// create databases
-				$connection = New DbConn();
-				$connection->connect();
-	
 				// create prod database
 				$connection->query("CREATE DATABASE IF NOT EXISTS `".$_POST["project_id"]."-prod`");
 			
@@ -56,12 +54,22 @@ include("../inc/header.php");
 				// add vhost for Nginx
 				$vhost_nginx_filename = "/etc/nginx/sites-available/".$_POST["project_id"];
 				$vhost_nginx_content = vhost_nginx($_POST["project_id"], $_POST["primary_domain"], $_POST["dev_domain"], $_POST["additional_domains"]);		
-				file_put_contents($vhost_nginx_filename, $vhost_nginx_content);
+				$check->writeToFile($vhost_nginx_filename, $vhost_nginx_content);
+				
+				//add symlink for nginx
+				$nginx_symlink = "/etc/nginx/sites-enabled/".$_POST["project_id"];
+				@unlink($nginx_symlink);
+				symlink($vhost_nginx_filename, $nginx_symlink);
 
 				// add vhost for Apache
 				$vhost_apache_filename = "/etc/apache2/sites-available/".$_POST["project_id"];
 				$vhost_apache_content = vhost_apache($_POST["project_id"], $_POST["primary_domain"], $_POST["dev_domain"]);
-				file_put_contents($vhost_apache_filename, $vhost_apache_content);
+				$check->writeToFile($vhost_apache_filename, $vhost_apache_content);
+				
+				//add symlink for Apache
+				$apache_symlink = "/etc/apache2/sites-enabled/".$_POST["project_id"];
+				@unlink($apache_symlink);
+				symlink($vhost_apache_filename, $apache_symlink);			
         }
         
         // on success
@@ -78,7 +86,7 @@ include("../inc/header.php");
 			$_POST["current_version"] = 1;			
  						
 			// prepare and execute
-			$create_project = $connection->prep_stmt("INSERT INTO projects (id, title, primary_domain, additional_domains, dev_domain, screenshot, current_version, use_cache) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");     
+			$create_project = $connection->prep_stmt("INSERT INTO projects (id, title, primary_domain, additional_domains, dev_domain, screenshot, current_version, use_cache, created, modified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, '".time()."', '".time()."')");     
 			$create_project->bind_param("sssssiii", 
 			$_POST["project_id"], $_POST["title"], $_POST["primary_domain"], $_POST["additional_domains"], $_POST["dev_domain"], $_POST["screenshot"], $_POST["current_version"], $_POST["use_cache"]);        
 			$create_project->execute() or die("Error: ".$create_project->error);     		
@@ -94,7 +102,7 @@ include("../inc/header.php");
 	<form action="<?=$_SERVER['PHP_SELF']; ?>" method="post">
 		<div class="field clearfix">
 			<label for="project_id">Project id:</label>
-			<input type="text" name="project_id" id="project_id">
+			<input type="text" name="project_id" id="project_id"> *
 		</div>
 		
 		<div class="field clearfix">
@@ -104,7 +112,7 @@ include("../inc/header.php");
 
 		<div class="field clearfix">
 			<label for="primary_domain">Primary domain:</label>			
-			<input type="text" name="primary_domain" id="primary_domain">
+			<input type="text" name="primary_domain" id="primary_domain"> *
 		</div>
 
 		<div class="field clearfix">			

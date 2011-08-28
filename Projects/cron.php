@@ -15,13 +15,14 @@ if(isset($_GET["errorStatus"])){
 	
 		// get status	
 		$check = new Check();
-		$check->setProjectId($_GET["id"]);
+		$check->setProjectId($project["id"]);
 
 		$check->checkProject("prod");
 		$check->checkProject("dev");    
 		$check->checkGithub();
 		$check->checkVhostApache();
-		$check->checkVhostNginx();		
+		$check->checkVhostNginx();	
+		$check->checkRestart();	
 		$number_of_errors = $check->getNumberOfErrors();	
 
 		// update status	
