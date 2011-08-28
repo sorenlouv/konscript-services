@@ -21,7 +21,8 @@ if(isset($_GET["errorStatus"])){
 		$check->checkProject("dev");    
 		$check->checkGithub();
 		$check->checkVhostApache();
-		$check->checkVhostNginx();		
+		$check->checkVhostNginx();	
+		$check->checkRestart();	
 		$number_of_errors = $check->getNumberOfErrors();	
 
 		// update status	
