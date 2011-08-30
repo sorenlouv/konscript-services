@@ -276,6 +276,10 @@ class Check {
 		}
 	}
 	
+	function ignoreWhiteSpace($str){
+		return str_replace(array("\n", "\r", "\t", " "), '', $str);
+	}
+	
 	
    /**
     * Produce content for the new virtual host for Apache/Nginx and check that all changes are reflected in the physical files
@@ -294,8 +298,8 @@ class Check {
 		foreach ($content as $line_num => $line) {	
 			foreach($fields as $field_id=>$field){
 	
-				// trim whitespace and compare lines. If they are identical, the line will be replace by the new 
-				if((strcmp(trim($line), trim($field[0])) == 0)){	
+				// compare lines (ignore whitespace). If they are identical, the line will be replace by the new 
+				if((strcmp($this->ignoreWhiteSpace($line), $this->ignoreWhiteSpace($field[0])) == 0)){	
 					$content[$line_num] = $field[1]."\n";
 					$fields[$field_id][2] = true;
 				}				
