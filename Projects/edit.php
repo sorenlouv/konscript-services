@@ -80,7 +80,7 @@ if($_POST){
 		//header("Location: /Projects/check.php?id=".$_GET["id"]);                  
 		echo $check->outputResult("Success. You will be redirected to the checklist page ...");
 		echo '<meta http-equiv="refresh" content="2;url=/Projects/check.php?id='.$_GET["id"].'">';
-
+		exit();
 	}else{
 		echo $check->outputResult();
 	}

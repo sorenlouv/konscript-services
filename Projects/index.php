@@ -19,23 +19,25 @@ if(isset($_GET["downloadProject"]) && isset($_GET["branch"])){
 if(isset($_GET["clearCache"])){
 	$check = new Check();
 	$check->setProjectId($_GET["clearCache"]);
-	$check->clearCache();
-	
-	echo $check->outputResult("Cache was cleared for ".$_GET["clearCache"]);
-		
+	$check->clearCache();	
+	echo $check->outputResult("Cache was cleared for ".$_GET["clearCache"]);		
 }
 
 /**
  * Delete project
  */
 if(isset($_GET["deleteProject"])){
-	unlink("/etc/apache2/sites-available/".$_GET["deleteProject"]);
-	unlink("/etc/apache2/sites-enabled/".$_GET["deleteProject"]);
-	unlink("/etc/nginx/sites-available/".$_GET["deleteProject"]);
-	unlink("/etc/nginx/sites-enabled/".$_GET["deleteProject"]);			
 	$project = $connection->prep_stmt("DELETE FROM projects WHERE id=?");	
 	$project->bind_param("s", $_GET["deleteProject"]);
 	$project->execute() or die("Error: ".$project->error);
+	
+	if($project->affected_rows > 0){
+		unlink("/etc/apache2/sites-available/".$_GET["deleteProject"]);
+		unlink("/etc/apache2/sites-enabled/".$_GET["deleteProject"]);
+		unlink("/etc/nginx/sites-available/".$_GET["deleteProject"]);
+		unlink("/etc/nginx/sites-enabled/".$_GET["deleteProject"]);			
+		echo "Deleted vhosts!";
+	}
 }
 
 /**
