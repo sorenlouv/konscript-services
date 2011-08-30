@@ -4,7 +4,7 @@
 project_id=${1}
 pathDev="/srv/www/${project_id}/dev/"
 pathTemp="/srv/www/services/prosty/temp/"
-pathWPDefaults="/srv/www/services/wp-defaults/"
+pathWPDefaults="/srv/www/services/kontemplate-wp/"
 wpFile="${pathTemp}latest.tar.gz"
 
 # remove old wordpress installations
