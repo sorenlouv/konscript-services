@@ -3,15 +3,11 @@ include("inc/Check.class.php");
 include("inc/Receiver.class.php");
 
 //Receive the json payload string
-if($_SERVER["REMOTE_ADDR"] == "127.0.0.1" || $_GET["debug"]){
-    $payload = file_get_contents("./payload");  //localhost
+if(isset($_REQUEST['payload'])){
+    $payload = $_REQUEST['payload'];    //payload received
 }else{
-    if(isset($_REQUEST['payload'])){
-        $payload = $_REQUEST['payload'];    //payload received
-    }else{
-        echo "No payload was received!";    //payload not received
-        exit();
-    }
+    echo "No payload was received!";    //payload not received
+    exit();
 }
 
 $check = new Check();

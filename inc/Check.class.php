@@ -352,7 +352,7 @@ class Check {
 		   }
 		}';
 
-		$receiver = new Receiver($payload, $this);
+		$receiver = new Receiver($payload, $this, true);
 		
 		//passed all preliminary validators
 		if ($this->getNumberOfErrors() == 0){

@@ -8,7 +8,7 @@ class Receiver{
 	var $payload;
 	var $check;
 
-    function Receiver($payload, $check){        
+    function Receiver($payload, $check, $ignoreHost = false){        
 		//set variables  
         $this->setPayload($payload);        
         $this->setCheck($check);
@@ -18,7 +18,9 @@ class Receiver{
         $this->checkBranch();
         $this->checkRepName();
         $this->checkGithubSenderAccount();
-        $this->checkSenderHost();
+        if(!$ignoreHost){
+        	$this->checkSenderHost();
+    	}
         $check->checkProject($check->getPathToDev());
     }                                   
     
