@@ -275,7 +275,11 @@ function vhost_apache($project_id, $primary_domain, $dev_domain){
 
 // update nginx additional domains
 function vhost_nginx_additional($primary_domain, $additional_domains){
-	return '	server_name  	*.'.$primary_domain.' '.$additional_domains.';';
+	if(empty($additional_domains)){
+		return '	server_name  	*.'.$primary_domain.';';
+	}else{
+		return '	server_name  	*.'.$primary_domain.' '.$additional_domains.';';
+	}
 }
 
 // update nginx primary domain

@@ -281,7 +281,7 @@ class Check {
     * Produce content for the new virtual host for Apache/Nginx and check that all changes are reflected in the physical files
     *********/
 	function get_vhost($filename, $fields, $check=true){
-		$content = file($filename);
+		$content = file($filename);		
 
 		// remove unchanged
 		foreach($fields as $field_id=>$field){
@@ -312,7 +312,7 @@ class Check {
 
 		if(count($errors)>0){
 			$status = 1; //error
-			$msg["error"] = "Following string missing in vhost: ".implode("", $errors);
+			$msg["error"] = "Following string missing in vhost: ".implode("<br>", $errors);
 	        $this->addCheck($status, $msg, __function__);
         }
 

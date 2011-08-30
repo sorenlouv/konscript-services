@@ -40,12 +40,12 @@ if($_POST){
 	
 	// produce and check vhost for Nginx	
 	$nginx = array();	
-	$nginx[] = array(vhost_nginx_additional($primary_domain, $additional_domains), vhost_nginx_additional($_POST["primary_domain"], $_POST["additional_domains"]));		// additional	
+	$nginx[] = array(vhost_nginx_additional($primary_domain, $additional_domains), vhost_nginx_additional($_POST["primary_domain"], $_POST["additional_domains"]));		// additional		
 	$nginx[] = array(vhost_nginx_rewrite($primary_domain), vhost_nginx_rewrite($_POST["primary_domain"])	);	// rewrite
 	$nginx[] = array(vhost_nginx_primary($primary_domain), vhost_nginx_primary($_POST["primary_domain"])	); // primary
 	$nginx[] = array(vhost_nginx_dev($dev_domain), vhost_nginx_dev($_POST["dev_domain"])); // dev
 	$nginx[] = array(vhost_nginx_cache($project_id, $use_cache), vhost_nginx_cache($project_id, $_POST["use_cache"])); // dev	
-
+	
 	$vhost_nginx_filename = "/etc/nginx/sites-available/".$project_id;			
 	$vhost_nginx_content = $check->get_vhost($vhost_nginx_filename, $nginx);
 	
