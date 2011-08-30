@@ -7,13 +7,12 @@ if(!isset($_GET["id"]) || empty($_GET["id"]) || !is_dir($web_root.$_GET["id"])){
 	header("Location: index.php");
 	exit();
 }
-
                  
 $check = new Check();
 $check->setProjectId($_GET["id"]);
 
-$check->checkProject("prod");
-$check->checkProject("dev");    
+$check->checkProject($check->getPathToDev());
+$check->checkProject($check->getPathToNewestVersion());    
 $check->checkGithub();
 $check->checkVhostApache();
 $check->checkVhostNginx();
@@ -51,4 +50,3 @@ $updateProject->execute() or die("Error: ".$result->error);
     echo '<div id="tip_'.$id.'">'.$tip.'</div>';
 endforeach; ?>
 </div>
-

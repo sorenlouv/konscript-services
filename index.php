@@ -11,14 +11,14 @@ $connection = New DbConn();
 $connection->connect();
 
 // produce query
-$result = $connection->query("SELECT deployments.id, repository_name, author_name, last_commit_msg, number_of_commits, created,  number_of_errors, function_name, error_msg FROM deployments 
+$result = $connection->query("SELECT deployments.id, project_id, author_name, last_commit_msg, number_of_commits, created,  number_of_errors, function_name, error_msg FROM deployments 
 LEFT JOIN deployment_errors on deployments.id=deployment_errors.deployment_id 
 ORDER BY deployments.id DESC");
 
 while ($deployment = $result->fetch_object()) {    
     $created = $deployment->created;
     $rows[$created]["id"] = $deployment->id;
-    $rows[$created]["project_id"] = $deployment->repository_name;
+    $rows[$created]["project_id"] = $deployment->project_id;
     $rows[$created]["author_name"] = $deployment->author_name;
     $rows[$created]["number_of_errors"] = $deployment->number_of_errors;
     $rows[$created]["last_commit_msg"] = $deployment->last_commit_msg;

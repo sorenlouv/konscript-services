@@ -1,29 +1,52 @@
 <?php
 include("../inc/Check.class.php");
+include("../inc/Receiver.class.php");
 include("../inc/header.php");
+
+$connection = New DbConn();
+$connection->connect();
 
 /**
  * download zip file
  */
-if(isset($_GET["id"]) && isset($_GET["branch"])){
-	downloadZip($_GET["id"], $_GET["branch"]);	
+if(isset($_GET["downloadProject"]) && isset($_GET["branch"])){
+	downloadZip($_GET["downloadProject"], $_GET["branch"]);	
 }
 
 /**
  * clear cache
  */
-if(isset($_GET["id"]) && isset($_GET["clearCache"])){
+if(isset($_GET["clearCache"])){
 	$check = new Check();
-	$check->setProjectId($_GET["id"]);
+	$check->setProjectId($_GET["clearCache"]);
 	$check->clearCache();
 	
-	if($check->getNumberOfErrors()>0){
-		echo"Global cache cleared!";
-	}
+	echo $check->outputResult("Cache was cleared for ".$_GET["clearCache"]);
+		
 }
 
-$connection = New DbConn();
-$connection->connect();
+/**
+ * Delete project
+ */
+if(isset($_GET["deleteProject"])){
+	unlink("/etc/apache2/sites-available/".$_GET["deleteProject"]);
+	unlink("/etc/apache2/sites-enabled/".$_GET["deleteProject"]);
+	unlink("/etc/nginx/sites-available/".$_GET["deleteProject"]);
+	unlink("/etc/nginx/sites-enabled/".$_GET["deleteProject"]);			
+	$project = $connection->prep_stmt("DELETE FROM projects WHERE id=?");	
+	$project->bind_param("s", $_GET["deleteProject"]);
+	$project->execute() or die("Error: ".$project->error);
+}
+
+/**
+ * make test pull
+ */
+if(isset($_GET["testPull"])){
+	$check = new Check();
+	$check->setProjectId($_GET["testPull"]);
+	$check->testPull();	
+	echo $check->outputResult("Test pull was successsful!");		       				                
+}
 
 // get projects stored in database
 $result = $connection->query("SELECT * FROM projects WHERE exclude='0'");
@@ -37,20 +60,21 @@ while($projects = $result->fetch_assoc()){
 		<div class="info">
 			<p class="title"><?php echo $projects["title"]; ?></p>
 			<p class="url">
-				<a href="?id=<?php echo $projects["id"]; ?>&branch=prod"><img src="/img/zip.png"></a>
+				<a href="?downloadProject=<?php echo $projects["id"]; ?>&branch=prod"><img src="/img/zip.png"></a>
 				<a href="http://<?php echo $projects["primary_domain"]; ?>"><?php echo $projects["primary_domain"]; ?></a>
 			</p>
 			<p class="url">
-				<a href="?id=<?php echo $projects["id"]; ?>&branch=dev"><img src="/img/zip.png"></a>
+				<a href="?downloadProject=<?php echo $projects["id"]; ?>&branch=dev"><img src="/img/zip.png"></a>
 				<a href="http://<?php echo $projects["dev_domain"]; ?>"><?php echo $projects["dev_domain"]; ?></a>
 			</p>
 			<div class="toolbar">
 				<p class="version">Version: <?php echo $projects["current_version"]; ?></p>
 				<?php if($projects["use_cache"]==1):?>							
-				<a href="/Projects/index.php?clearCache=1&id=<?php echo $projects["id"]; ?>">Clear cache</a>
+					<a href="/Projects/index.php?clearCache=<?php echo $projects["id"]; ?>">Clear cache</a>
 				<?php endif; ?>
-				<a href="/Projects/cron.php?errorStatus=1&screenshot=1&id=<?php echo $projects["id"]; ?>">Update</a>
+				<a href="?testPull=<?php echo $projects["id"]; ?>">Test pull</a>				
 				<a href="/Projects/edit.php?id=<?php echo $projects["id"]; ?>">Edit</a>
+				<a class="delete" href="/Projects/index.php?deleteProject=<?php echo $projects["id"]; ?>">Delete</a>								
 			</div>
 		</div>
 	</div>

@@ -15,14 +15,9 @@ class Deploy{
 		// set variables  
         $this->check = $check;
 	    $check->setProjectId($project_id);    	        
-        $check->setStageFolder("prod");    
             
 	    // validators                                                    
-        $check->checkGitRemote();  
-        $check->checkFolderMustExist();
-        $check->checkFolderMustExist("/.git");        
-		$check->checkFolderWritable();       
-		$check->checkFolderWritable("/.git");		
+		$check->checkProject($check->getPathToNewestVersion());		
 		$check->checkRestart();
 				
 		// intial validators passed
@@ -35,7 +30,7 @@ class Deploy{
 				$next_version = $current_version + 1;
 		
 				// validate that the next version doesn't exist
-				$check->checkFolderCannotExist($path.$next_version);    				          
+				$check->folderCannotExist($path.$next_version);    				          
 				if($check->getNumberOfErrors() == 0){
 					recursive_copy($path.$current_version, $path.$next_version);            
 					
@@ -70,7 +65,7 @@ class Deploy{
 			                                        
 		}	
 								
-		echo $check->outputResult();		       				                
+		echo $check->outputResult("Deployment was successful");		       				                
 
     }                                       
 }    

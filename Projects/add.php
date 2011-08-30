@@ -17,7 +17,7 @@ include("../inc/header.php");
 		$connection->connect();
 
         // Validations
-        $check->checkFolderCannotExist($full_path_to_project); // folder cannot exist
+        $check->folderCannotExist($full_path_to_project); // folder cannot exist
 		$check->checkGithub(); // github project must exist
 		$check->notEmpty($_POST["primary_domain"]);
 		$check->notEmpty($_POST["project_id"]);		

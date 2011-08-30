@@ -21,6 +21,16 @@ $(document).ready(function() {
 		}
     });    
     
+    // confirm delete
+    $("a.delete").click(function(){
+		if(confirm('Delete project and associated virtual hosts ?!')){
+			if(confirm('You are DELETING the project! Proceed?')){
+				return true;
+			}
+		}		
+		return false;
+    });    
+    
 })
 
 // will gently show the most recent flash message
@@ -35,3 +45,4 @@ function showFlashMessage() {
 		});
 	}
 } 
+

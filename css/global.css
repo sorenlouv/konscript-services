@@ -124,7 +124,8 @@ div.projectOverview{
 			bottom: 5px;
 			height: 20px;
 			width: 590px;
-		}				
+		}
+			div.projectOverview .info div.toolbar a.delete{ background-color: red; padding: 5px; color: white}							
 			div.projectOverview .info div.toolbar p.version{ float: left;}						
 			div.projectOverview .info div.toolbar a{ margin-left:10px; }
 			

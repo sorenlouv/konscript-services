@@ -2,7 +2,7 @@
 include("inc/Check.class.php");
 include("inc/Receiver.class.php");
 
-//Receive and decode the json payload string
+//Receive the json payload string
 if($_SERVER["REMOTE_ADDR"] == "127.0.0.1" || $_GET["debug"]){
     $payload = file_get_contents("./payload");  //localhost
 }else{
@@ -23,7 +23,7 @@ if ($check->getNumberOfErrors() == 0){
 	$check->checkGitPull($git_response);                                          
 }
 
-echo $check->outputResult(true);		       				                
+echo $check->outputResult("No errors occured");		       				                
 
 $receiver->log_to_db();
   

@@ -11,7 +11,6 @@ class Check {
     var $checks = array();
     var $project_id;
     var $number_of_errors = 0;
-    var $stageFolder;
     
     // constructor - set root
     function check(){
@@ -29,22 +28,22 @@ class Check {
         return $this->checks;
     }        
     
-	function outputResult($verbose = false){	
+	function outputResult($success = "Success!"){	
 		
 		// output errors
 			$html = '<div class="flash-message error">';
 			foreach($this->checks as $check){			
 				if($check["status"] == 0){
 					$html .= "Error: " . $check["error"] . "<br/>";
-				}elseif(isset($check["success"]) && $verbose == true){
-					$html .= "Success: " . $check["success"] . " [" .$check["name"]."]<br/>";
+				// }elseif(isset($check["success"]) && $verbose == true){
+				//	$html .= "Success: " . $check["success"] . " [" .$check["name"]."]<br/>";
 				}
 			}
 			$html .= "</div>";
 		
-		// output success
-		if($verbose == false && $this->getNumberOfErrors() == 0){
-			$html = '<div class="flash-message success">Project successfully deployed!</div>';
+		// output success only if no errors occured
+		if($this->getNumberOfErrors() == 0){
+			$html = '<div class="flash-message success">'.$success.'</div>';
 		}				
 		
 		return $html;
@@ -62,25 +61,21 @@ class Check {
         return $this->number_of_errors;
     }    
     
-    function getPathToStageFolder(){
-        if($this->stageFolder=="dev"){
-            return $this->web_root.$this->project_id."/dev";
-        }else{
-              $prod_folder = $this->web_root.$this->project_id."/prod/";
-              if(!isset($this->latestProdVersion)){
-                  $this->latest_prod_version = get_latest_prod_version($prod_folder);                
-              }
-              return $prod_folder.$this->latest_prod_version;
-        }
+    function getPathToNewestVersion(){
+      $prod_folder = $this->web_root.$this->project_id."/prod/";
+      if(!isset($this->latestProdVersion)){
+          $this->latest_prod_version = get_latest_prod_version($prod_folder);                
+      }
+      return $prod_folder.$this->latest_prod_version;
     }        
+    
+	function getPathToDev(){
+        return $this->web_root.$this->project_id."/dev";
+    }
     
     function setProjectId($project_id){
         $this->project_id = $project_id;
     }        
-
-    function setStageFolder($stageFolder){
-        $this->stageFolder = $stageFolder;
-    }
                             
    function addCheck($status, $msg, $calling_function){        
         $msg["name"] = $calling_function;
@@ -111,11 +106,11 @@ class Check {
 		$path_to_nginx_cache ="/var/cache/nginx/cached/".$this->project_id;   		
 		$status = 1;		
 		
-		if(is_dir($path_to_nginx_cache)){
+		if(isset($this->project_id) && is_dir($path_to_nginx_cache)){
 			$chdir = is_dir($path_to_nginx_cache) ? chdir($path_to_nginx_cache) : false;
 
 			if($chdir && getcwd()==$path_to_nginx_cache && trim(shell_exec("pwd"))==$path_to_nginx_cache){
-				//exec("find -type f -exec rm -f {} \;", $output, $status);
+				exec("find $path_to_nginx_cache -type f -exec rm -f {} \;", $output, $status);
 				$status = 0;
 			}
 		}
@@ -135,20 +130,9 @@ class Check {
 /*************** validations **************/    
     
     /**
-     * check if git has been initialized 
-     */    
-    function checkGitInit(){
-        $path = $this->getPathToStageFolder()."/.git";
-        $status = is_dir($path) ? 0 : 1;
-        $msg = array("success"=>"Git folder is created in $path", "error"=>"Initialize Git in ".$path);
-        $this->addCheck($status, $msg, __function__);                  
-    }
-    
-    /**
      * check if remote 'konscript' has been added            
      */    
-    function checkGitRemote(){                                  
-        $path = $this->getPathToStageFolder();
+    function checkGitRemote($path){                                  
         $status = Git::git_callback('remote -v | grep "'.$this->getPathToGitRemote().'"', $path);
         $msg = array(
             "success"=>"Remote 'konscript' was found in $path", 
@@ -159,10 +143,9 @@ class Check {
     }             
 
     /**
-     * check the directory has the sufficient permissions. It must be writable    
+     * The folder must be writable    
      */        
-    function checkFolderWritable($git = ""){    
-        $path = $this->getPathToStageFolder().$git;
+    function folderWritable($path){    
         $status = is_writable($path) ? 0 : 1;        
         $msg = array("success"=>"Folder is writable in $path", "error"=>"Folder not writable: ".$path, "tip"=> " Change permission for the folder and contents recursively:<br> chmod 770 ".$path." -R");
         $this->addCheck($status, $msg, __function__);    
@@ -171,8 +154,7 @@ class Check {
     /**
      * Error if folder does NOT exist
      */    
-    function checkFolderMustExist($append_directories = ""){
-        $path = $this->getPathToStageFolder().$append_directories;
+    function folderMustExist($path){
         $status = is_dir($path) ? 0 : 1;
         $msg = array("success"=>"Folder exists in $path", "error"=>"Folder does not exist: ".$path, "tip"=>"Create directory: <br>mkdir ".$path);
         $this->addCheck($status, $msg, __function__);            
@@ -181,7 +163,7 @@ class Check {
 	/**
 	 * Error if folder exists
 	 ***************************************/
-    function checkFolderCannotExist($path){
+    function folderCannotExist($path){
         $status = !file_exists($path) ? 0 : 1;
         $msg = array("success"=>"The folder does not exist: $path", "error"=>"The folder already exists: $path");
         $this->addCheck($status, $msg, __function__);    
@@ -230,17 +212,12 @@ class Check {
 	/**
 	 * Check individual project for errors
 	 ****************/   
-	function checkProject($stageFolder){   
-		//set variables
-
-		$this->setStageFolder($stageFolder);
-				
-		//validators	            	       	    
-		$this->checkGitRemote();  
-		$this->checkFolderMustExist();
-		$this->checkFolderMustExist("/.git");
-		$this->checkFolderWritable();
-		$this->checkFolderWritable("/.git");      
+	function checkProject($path){   
+		$this->checkGitRemote($path);  
+		$this->folderMustExist($path);
+		$this->folderMustExist($path."/.git");
+		$this->folderWritable($path);
+		$this->folderWritable($path."/.git");      
 	}
 	
 	/**
@@ -280,7 +257,7 @@ class Check {
 		}		
         
         $msg = array("success"=>"No restart required", "error"=>"A restart for $error_msg is required");
-        $msg["tip"] = "<b>test conf files:</b> sudo nginx -t && sudo apache2ctl -t <br/> <b>Restart:</b> sudo service nginx restart && sudo service apache2 restart 
+        $msg["tip"] = "<b>test conf files:</b> sudo nginx -t && sudo apache2ctl -t <br/> <b>Restart:</b> sudo service nginx reload && sudo service apache2 reload 
 ";        
         $this->addCheck($status, $msg, __function__);
     }  	
@@ -298,11 +275,12 @@ class Check {
 	        $this->addCheck($status, $msg, __function__);
 		}
 	}
-   
+	
+	
    /**
-    * update virtual host for Apache/Nginx and check that all changes are reflected in the physical files
+    * Produce content for the new virtual host for Apache/Nginx and check that all changes are reflected in the physical files
     *********/
-	function update_vhost($filename, $fields){
+	function get_vhost($filename, $fields, $check=true){
 		$content = file($filename);
 
 		// remove unchanged
@@ -343,6 +321,47 @@ class Check {
 
 		return $content;
 	}   
+	
+	function testPull(){
+	
+		$payload = '{
+		  "after": "123456789", 
+		  "commits": [
+			{
+			  "added": [
+				"some\/file.htm"
+			  ], 
+			  "author": {
+				"email": "admin@konscript.com", 
+				"name": "Caesar", 
+				"username": "Caesar"
+			  }, 
+			  "distinct": true, 
+			  "id": "12345678", 
+			  "message": "This is a test pull!", 
+			  "modified": [], 
+			  "removed": [], 
+			  "timestamp": "2011-06-04T04:17:24-07:00", 
+			  "url": "https:\/\/github.com\/konscript\/konteaser\/commit\/e67d6ea72842a7b76dbc6e14f0c672eb8f07f97d"
+			} 
+		  ], 
+		  "ref": "refs\/heads\/master", 
+		  "repository": {
+			"name": "'.$this->project_id.'", 
+			"url": "https:\/\/github.com\/konscript\/'.$this->project_id.'"
+		   }
+		}';
+
+		$receiver = new Receiver($payload, $this);
+		
+		//passed all preliminary validators
+		if ($this->getNumberOfErrors() == 0){
+			$git_response = Git::git_callback('pull konscript master', $this->web_root.$receiver->payload->repository->name."/dev", true);
+			$this->checkGitPull($git_response);                                          
+		}
+
+		$receiver->log_to_db();				
+	}
 
 }       
 ?>

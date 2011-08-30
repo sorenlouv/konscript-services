@@ -13,18 +13,13 @@ class Receiver{
         $this->setPayload($payload);        
         $this->setCheck($check);
         $check->setProjectId($this->payload->repository->name);    
-        $check->setStageFolder("dev");    
             
 	    //validators                                                    
         $this->checkBranch();
         $this->checkRepName();
         $this->checkGithubSenderAccount();
         $this->checkSenderHost();
-        $check->checkGitRemote();  
-        $check->checkFolderMustExist();
-        $check->checkFolderMustExist("/.git");        
-		$check->checkFolderWritable();       
-		$check->checkFolderWritable("/.git");		       				                
+        $check->checkProject($check->getPathToDev());
     }                                   
     
     function setPayload($payload){
@@ -48,7 +43,7 @@ class Receiver{
     }
 
 	/**
-	 * a repository name must be given
+	 * a repository name (later called project id) must be given
 	 ***************************************/    
     function checkRepName(){
         $status = isset($this->payload->repository->name) ? 0 : 1;
@@ -85,7 +80,7 @@ class Receiver{
     function log_to_db(){        
 
         //make query
-        $query = "INSERT INTO deployments (repository_name, author_name, commit_hash, last_commit_msg, number_of_commits, number_of_errors, payload, ip_addr, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, '".time()."')";
+        $query = "INSERT INTO deployments (project_id, author_name, commit_hash, last_commit_msg, number_of_commits, number_of_errors, payload, ip_addr, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, '".time()."')";
 
         //make connection do db
         $connection = New DbConn();

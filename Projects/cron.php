@@ -17,8 +17,8 @@ if(isset($_GET["errorStatus"])){
 		$check = new Check();
 		$check->setProjectId($project["id"]);
 
-		$check->checkProject("prod");
-		$check->checkProject("dev");    
+		$check->checkProject($check->getPathToDev());
+		$check->checkProject($check->getPathToNewestVersion());    
 		$check->checkGithub();
 		$check->checkVhostApache();
 		$check->checkVhostNginx();	
