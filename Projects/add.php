@@ -30,7 +30,9 @@ include("../inc/header.php");
 				$full_path_to_dev = $full_path_to_project."/dev";
 				mkdir($full_path_to_dev, 02770);
 				$repo = Git::create($full_path_to_dev); //git init        
-				$repo->run('remote add konscript '. $check->getPathToGitRemote());
+				$repo->run('remote add konscript '. $check->getPathToGitRemote()); 	// add remote
+				$repo->run('config branch.master.remote konscript');				// set Konscript as the default remote
+				$repo->run('config branch.master.merge refs/heads/master');			// set master as the default branch to pull from
 				
 				// wordpress: download and extract latest version
 				wp_get_latest($_POST["project_id"], isset($_POST["wordpress"]));            

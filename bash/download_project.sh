@@ -20,36 +20,22 @@ rm ${sqlFile}
 rm ${tarFile}
 
 # create mysqldump
-dump=$(mysqldump -u $SQLUser -p$SQLPass $dbname)
+mysqldump -u $SQLUser -p$SQLPass $dbname > $sqlFile		
 
-# if successfully opened database
+# any problems making sql dump ?
 if [ $? != 0 ]; then {
 	error=1	
-} else {
-	# write dump to file
-	echo $dump > $sqlFile		
 } fi
 	
-# create tar archive with web files and mysqldump
+# create tar archive with web files and add mysqldump
 tar --create --file=${tarFile} -C ${cwdToFolder} ${folderToZip} -C ${pathTemp} export.sql
 
+# any problems making tar?
 if [ $? != 0 ]; then {
 	error=1
 } fi
 	
+# everything went well
 if [ $error == 0 ]; then {
 	echo "success"
 } fi
-
-
-
-
-# debugging tar
-#echo "project_id: ${project_id}"
-#echo "Tarfile: ${tarFile}"
-#echo "folderToZip: ${folderToZip}"
-#echo "cwdToFolder: ${cwdToFolder}"
-
-# debugging sql
-#echo "mysqldump -u ${SQLUser} -p${SQLPass} ${dbname} > ${sqlFile}"
-#echo "dbname: ${dbname}"
