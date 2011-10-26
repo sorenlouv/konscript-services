@@ -11,6 +11,9 @@ class Deploy{
     function Deploy($project_id, $deploy_type){        
     	// initialize check
     	$check = new Check();
+    	
+    	// connect to db
+    	$mysql = new Mysql();
     	        
 		// set variables  
         $this->check = $check;
@@ -34,17 +37,13 @@ class Deploy{
 				if($check->getNumberOfErrors() == 0){
 					recursive_copy($path.$current_version, $path.$next_version);            
 					
-					// change current symlink
+					// update version in symlink
 					$pathToSymlink = $path."current";
 					unlink($pathToSymlink);
 					symlink($path.$next_version, $pathToSymlink);  					
 					
 					//update version in db
-					$connection = New DbConn();
-					$connection->connect();						
-					$update_project = $connection->prep_stmt("UPDATE projects SET current_version=? WHERE id=?");          
-					$update_project->bind_param("is",$next_version, $project_id);        
-					$update_project->execute() or die("Error: ".$update_project->error);   					
+					$mysql->updateProjectVersion($next_version, $project_id);
 				}
 			
 				$version = $next_version;
@@ -54,13 +53,15 @@ class Deploy{
 				$version = $current_version;
 			}
 			
-			// clear cache for current project
-			$check->clearCache();
+			// clear cache for current project (only if cache is enabled!)			
+			if($mysql->useCache($project_id) === true){
+				$check->clearCache();
+			}
 			
 			// final validators passed
 			if($check->getNumberOfErrors() == 0){						
-				$git_response = Git::git_callback('pull konscript master', $path.$version, true);
-				$check->checkGitPull($git_response);  
+				//$git_response = Git::git_callback('pull konscript master', $path.$version, true);
+				//$check->checkGitPull($git_response);  
 			}
 			                                        
 		}	

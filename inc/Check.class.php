@@ -1,5 +1,5 @@
 <?php
-include("conn.inc.php");
+include("Mysql.php");
 include("util.php");
 include("Git.php");
 
@@ -116,7 +116,7 @@ class Check {
 		}
 
 		// build error message
-		$error_msg = "Cache not cleared in: $path_to_nginx_cache (";
+		$error_msg = "Cache could not be cleared in: $path_to_nginx_cache (";
 		$error_msg .= " PHP: ".getcwd();
 		$error_msg .= " Shell: ".shell_exec("pwd").")";
 
@@ -251,10 +251,13 @@ class Check {
 		}
 		
 		// does nginx needs a restart?
+		/*
+		// disabled until I find a way to determine last reload for nginx
 		if($modified > $uptime["nginx"]){
 			$error_msg .= $error_msg =="" ? " Nginx" : " and Nginx" ;
 			$status = 1;
 		}		
+		*/
         
         $msg = array("success"=>"No restart required", "error"=>"A restart for $error_msg is required");
         $msg["tip"] = "<b>test conf files:</b> sudo nginx -t && sudo apache2ctl -t <br/> <b>Restart:</b> sudo service nginx reload && sudo service apache2 reload 

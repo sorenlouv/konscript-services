@@ -2,6 +2,10 @@
 include("inc/Check.class.php");
 include("inc/Receiver.class.php");
 
+if($_SERVER["REMOTE_ADDR"] == "127.0.0.1"){
+	$_REQUEST['payload'] = file_get_contents("payload");
+}
+
 //Receive the json payload string
 if(isset($_REQUEST['payload'])){
     $payload = $_REQUEST['payload'];    //payload received
