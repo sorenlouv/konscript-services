@@ -60,8 +60,8 @@ class Deploy{
 			
 			// final validators passed
 			if($check->getNumberOfErrors() == 0){						
-				//$git_response = Git::git_callback('pull konscript master', $path.$version, true);
-				//$check->checkGitPull($git_response);  
+				$git_response = Git::git_callback('pull konscript master', $path.$version, true);
+				$check->checkGitPull($git_response);  
 			}
 			                                        
 		}	

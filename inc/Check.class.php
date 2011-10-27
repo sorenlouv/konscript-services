@@ -237,12 +237,12 @@ class Check {
 		$error_msg = "";		
         $file = $this->service_root."/bash/uptime.sh";
         $uptime = json_decode(shell_exec($file), true);
-                        
+                   
+                
 		// mysql connection
-		$connection = New DbConn();
-		$connection->connect();
-		$project = $connection->query("SELECT modified FROM projects WHERE id='".$this->project_id."'");
-		$modified = $project->fetch_object()->modified;
+		$mysql = new Mysql();
+		$project = $mysql->getProject($this->project_id);
+		$modified = $project["modified"];
 		
 		// does apache needs a restart?
 		if($modified > $uptime["apache"]){
